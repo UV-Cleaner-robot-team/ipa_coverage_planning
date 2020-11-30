@@ -456,7 +456,7 @@ void RoomExplorationServer::exploreRoom(const ipa_building_msgs::RoomExploration
 		if(planning_mode_==PLAN_FOR_FOV)
 		{
 //			cv::Mat distance_transform;
-//			cv::distanceTransform(room_map, distance_transform, CV_DIST_L2, CV_DIST_MASK_PRECISE);
+//			cv::distanceTransform(room_map, distance_transform, cv::DIST_L2, cv::DIST_MASK_PRECISE);
 //			cv::Mat display = room_map.clone();
 //			// todoo: get max dist from map and parametrize loop
 //			for (int s=5; s<100; s+=10)
@@ -553,17 +553,17 @@ void RoomExplorationServer::exploreRoom(const ipa_building_msgs::RoomExploration
 			fov_path_map = room_map.clone();
 			cv::resize(fov_path_map, fov_path_map, cv::Size(), 2, 2, cv::INTER_LINEAR);
 			if (exploration_path.size() > 0)
-				cv::circle(fov_path_map, 2*cv::Point((exploration_path[0].x-map_origin.x)/map_resolution, (exploration_path[0].y-map_origin.y)/map_resolution), 2, cv::Scalar(150), CV_FILLED);
+				cv::circle(fov_path_map, 2*cv::Point((exploration_path[0].x-map_origin.x)/map_resolution, (exploration_path[0].y-map_origin.y)/map_resolution), 2, cv::Scalar(150), cv::FILLED);
 			for(size_t i=1; i<=step; ++i)
 			{
 				cv::Point p1((exploration_path[i-1].x-map_origin.x)/map_resolution, (exploration_path[i-1].y-map_origin.y)/map_resolution);
 				cv::Point p2((exploration_path[i].x-map_origin.x)/map_resolution, (exploration_path[i].y-map_origin.y)/map_resolution);
-				cv::circle(fov_path_map, 2*p2, 2, cv::Scalar(200), CV_FILLED);
+				cv::circle(fov_path_map, 2*p2, 2, cv::Scalar(200), cv::FILLED);
 				cv::line(fov_path_map, 2*p1, 2*p2, cv::Scalar(150), 1);
 				cv::Point p3(p2.x+5*cos(exploration_path[i].theta), p2.y+5*sin(exploration_path[i].theta));
 				if (i==step)
 				{
-					cv::circle(fov_path_map, 2*p2, 2, cv::Scalar(80), CV_FILLED);
+					cv::circle(fov_path_map, 2*p2, 2, cv::Scalar(80), cv::FILLED);
 					cv::line(fov_path_map, 2*p1, 2*p2, cv::Scalar(150), 1);
 					cv::line(fov_path_map, 2*p2, 2*p3, cv::Scalar(50), 1);
 				}
@@ -887,10 +887,10 @@ void RoomExplorationServer::navigateExplorationPath(const std::vector<geometry_m
 
 		// draw found regions s.t. they can be intersected later
 		cv::Mat black_map(costmap_as_mat.cols, costmap_as_mat.rows, costmap_as_mat.type(), cv::Scalar(0));
-		cv::drawContours(black_map, areas_to_revisit, -1, cv::Scalar(255), CV_FILLED);
+		cv::drawContours(black_map, areas_to_revisit, -1, cv::Scalar(255), cv::FILLED);
 		for(size_t contour = 0; contour < left_areas.size(); ++contour)
 			if(hierarchy[contour][3] != -1)
-				cv::drawContours(black_map, left_areas, contour, cv::Scalar(0), CV_FILLED);
+				cv::drawContours(black_map, left_areas, contour, cv::Scalar(0), cv::FILLED);
 
 		// 2. Intersect the left areas with respect to the calculated grid length.
 		geometry_msgs::Polygon min_max_coordinates;	// = goal->room_min_max;
@@ -902,7 +902,7 @@ void RoomExplorationServer::navigateExplorationPath(const std::vector<geometry_m
 		// 3. find the centers of the global_costmap areas
 		std::vector < std::vector<cv::Point> > grid_areas;
 		cv::Mat contour_map = black_map.clone();
-		cv::findContours(contour_map, grid_areas, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);
+		cv::findContours(contour_map, grid_areas, cv::RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);
 
 		// get the moments
 		std::vector<cv::Moments> moments(grid_areas.size());
@@ -931,7 +931,7 @@ void RoomExplorationServer::navigateExplorationPath(const std::vector<geometry_m
 //		black_map = room_map.clone();
 //		for(size_t i = 0; i < area_centers.size(); ++i)
 //		{
-//			cv::circle(black_map, area_centers[i], 2, cv::Scalar(127), CV_FILLED);
+//			cv::circle(black_map, area_centers[i], 2, cv::Scalar(127), cv::FILLED);
 //			std::cout << area_centers[i] << std::endl;
 //		}
 //		cv::namedWindow("revisiting areas", cv::WINDOW_NORMAL);

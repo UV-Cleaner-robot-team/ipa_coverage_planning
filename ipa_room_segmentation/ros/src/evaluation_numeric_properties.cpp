@@ -619,7 +619,7 @@ int main(int argc, char **argv) {
 			// generate colored segmented_map
 			cv::Mat color_segmented_map;
 			segmented_map.convertTo(color_segmented_map, CV_8U);
-			cv::cvtColor(color_segmented_map, color_segmented_map, CV_GRAY2BGR);
+			cv::cvtColor(color_segmented_map, color_segmented_map, cv::COLOR_GRAY2BGR);
 			for(size_t i = 1; i <= result->room_information_in_pixel.size(); ++i)
 			{
 				//choose random color for each room
@@ -714,8 +714,8 @@ int main(int argc, char **argv) {
 //					for(size_t u = 0; u < segmented_map.cols; ++u)
 //						if(segmented_map.at<int>(v,u) == i)
 //							single_room_map.at<uchar>(v,u) = 255;
-//				cv::findContours(single_room_map, contours, hierarchy, CV_RETR_CCOMP, CV_CHAIN_APPROX_NONE);
-//				cv::drawContours(temporary_map, contours, -1, cv::Scalar(0), CV_FILLED);
+//				cv::findContours(single_room_map, contours, hierarchy, cv::RETR_CCOMP, cv::CHAIN_APPROX_NONE);
+//				cv::drawContours(temporary_map, contours, -1, cv::Scalar(0), cv::FILLED);
 //				for (int c = 0; c < contours.size(); c++)
 //				{
 //					if (map_resolution * map_resolution * cv::contourArea(contours[c]) > 1.0)

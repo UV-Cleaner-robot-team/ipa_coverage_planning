@@ -159,7 +159,7 @@ struct EvaluationData
 		cv::Mat map_eroded;
 		cv::erode(floor_plan_, map_eroded, cv::Mat(), cv::Point(-1,-1), robot_radius_/map_resolution_+2);
 		cv::Mat distance_map;	//variable for the distance-transformed map, type: CV_32FC1
-		cv::distanceTransform(map_eroded, distance_map, CV_DIST_L2, 5);
+		cv::distanceTransform(map_eroded, distance_map, cv::DIST_L2, 5);
 		cv::convertScaleAbs(distance_map, distance_map);	// conversion to 8 bit image
 		bool robot_start_coordinate_set = false;
 		for (int v=0; v<map_eroded.rows && robot_start_coordinate_set==false; ++v)
@@ -858,7 +858,7 @@ public:
 
 			// 4. do the movements
 			cv::Mat draw_path_map, draw_path_map2;
-			cv::cvtColor(evaluation_data.floor_plan_, draw_path_map, CV_GRAY2BGR);
+			cv::cvtColor(evaluation_data.floor_plan_, draw_path_map, cv::COLOR_GRAY2BGR);
 			draw_path_map2 = draw_path_map.clone();
 			double path_length_robot = 0.;
 			double path_length_trolley = 0.;
@@ -981,7 +981,7 @@ public:
 			std::string segmented_map_filename = lower_path + evaluation_data.map_name_ + "_segmented.png";
 			cv::Mat colour_segmented_map = segmented_map.clone();
 			colour_segmented_map.convertTo(colour_segmented_map, CV_8U);
-			cv::cvtColor(colour_segmented_map, colour_segmented_map, CV_GRAY2BGR);
+			cv::cvtColor(colour_segmented_map, colour_segmented_map, cv::COLOR_GRAY2BGR);
 			for(size_t i = 1; i <= result_seg->room_information_in_pixel.size(); ++i)
 			{
 				// choose random color for each room
@@ -1005,7 +1005,7 @@ public:
 			for(size_t i = 0; i < result_seg->room_information_in_pixel.size(); ++i)
 			{
 				cv::Point current_center (result_seg->room_information_in_pixel[i].room_center.x, result_seg->room_information_in_pixel[i].room_center.y);
-				cv::circle(colour_segmented_map, current_center, 2, CV_RGB(0,0,255), CV_FILLED);
+				cv::circle(colour_segmented_map, current_center, 2, CV_RGB(0,0,255), cv::FILLED);
 			}
 			// color image in unique colour to show the segmentation
 			if (cv::imwrite(segmented_map_filename.c_str(), colour_segmented_map) == false)
@@ -1017,7 +1017,7 @@ public:
 			cv::Mat sequence_map = cv_ptr_seq->image;
 			// draw in trash bins
 			for (size_t i=0; i<evaluation_data.trash_bin_locations_.size(); ++i)
-				cv::circle(sequence_map, evaluation_data.trash_bin_locations_[i], 2, CV_RGB(128,0,255), CV_FILLED);
+				cv::circle(sequence_map, evaluation_data.trash_bin_locations_[i], 2, CV_RGB(128,0,255), cv::FILLED);
 			if (cv::imwrite(sequence_map_filename.c_str(), sequence_map) == false)
 				ROS_ERROR("Error on writing file '%s'", sequence_map_filename.c_str());
 			std::string sequence_detail_map_filename = lower_path + evaluation_data.map_name_ + "_sequence_detail.png";
@@ -1196,7 +1196,7 @@ public:
 
 				// 4. do the movements
 				cv::Mat draw_path_map, draw_path_map2;
-				cv::cvtColor(evaluation_data.floor_plan_, draw_path_map, CV_GRAY2BGR);
+				cv::cvtColor(evaluation_data.floor_plan_, draw_path_map, cv::COLOR_GRAY2BGR);
 				draw_path_map2 = draw_path_map.clone();
 				double path_length_robot = 0.;
 				double path_length_trolley = 0.;
@@ -1372,7 +1372,7 @@ public:
 				std::string segmented_map_filename = lower_path + evaluation_data.map_name_ + "_segmented.png";
 				cv::Mat colour_segmented_map = segmented_map.clone();
 				colour_segmented_map.convertTo(colour_segmented_map, CV_8U);
-				cv::cvtColor(colour_segmented_map, colour_segmented_map, CV_GRAY2BGR);
+				cv::cvtColor(colour_segmented_map, colour_segmented_map, cv::COLOR_GRAY2BGR);
 				for(size_t i = 1; i <= result_seg->room_information_in_pixel.size(); ++i)
 				{
 					// choose random color for each room
@@ -1396,7 +1396,7 @@ public:
 				for(size_t i = 0; i < result_seg->room_information_in_pixel.size(); ++i)
 				{
 					cv::Point current_center (result_seg->room_information_in_pixel[i].room_center.x, result_seg->room_information_in_pixel[i].room_center.y);
-					cv::circle(colour_segmented_map, current_center, 2, CV_RGB(0,0,255), CV_FILLED);
+					cv::circle(colour_segmented_map, current_center, 2, CV_RGB(0,0,255), cv::FILLED);
 				}
 				// color image in unique colour to show the segmentation
 				if (cv::imwrite(segmented_map_filename.c_str(), colour_segmented_map) == false)
@@ -1408,7 +1408,7 @@ public:
 				cv::Mat sequence_map = cv_ptr_seq->image;
 				// draw in trash bins
 				for (size_t i=0; i<evaluation_data.trash_bin_locations_.size(); ++i)
-					cv::circle(sequence_map, evaluation_data.trash_bin_locations_[i], 2, CV_RGB(128,0,255), CV_FILLED);
+					cv::circle(sequence_map, evaluation_data.trash_bin_locations_[i], 2, CV_RGB(128,0,255), cv::FILLED);
 				if (cv::imwrite(sequence_map_filename.c_str(), sequence_map) == false)
 					ROS_ERROR("Error on writing file '%s'", sequence_map_filename.c_str());
 				std::string sequence_detail_map_filename = lower_path + evaluation_data.map_name_ + "_sequence_detail.png";
@@ -1631,7 +1631,7 @@ public:
 				// 5. do the movements
 				drc.setConfig("maximum_clique_size", 9001);
 				cv::Mat draw_path_map, draw_path_map2;
-				cv::cvtColor(evaluation_data.floor_plan_, draw_path_map, CV_GRAY2BGR);
+				cv::cvtColor(evaluation_data.floor_plan_, draw_path_map, cv::COLOR_GRAY2BGR);
 				draw_path_map2 = draw_path_map.clone();
 				double path_length_robot = 0.;
 				double path_length_trolley = 0.;
@@ -1771,7 +1771,7 @@ public:
 				std::string segmented_map_filename = lower_path + evaluation_data.map_name_ + "_segmented.png";
 				cv::Mat colour_segmented_map = segmented_map.clone();
 				colour_segmented_map.convertTo(colour_segmented_map, CV_8U);
-				cv::cvtColor(colour_segmented_map, colour_segmented_map, CV_GRAY2BGR);
+				cv::cvtColor(colour_segmented_map, colour_segmented_map, cv::COLOR_GRAY2BGR);
 				for(size_t i = 1; i <= result_seg->room_information_in_pixel.size(); ++i)
 				{
 					// choose random color for each room
@@ -1795,7 +1795,7 @@ public:
 				for(size_t i = 0; i < result_seg->room_information_in_pixel.size(); ++i)
 				{
 					cv::Point current_center (result_seg->room_information_in_pixel[i].room_center.x, result_seg->room_information_in_pixel[i].room_center.y);
-					cv::circle(colour_segmented_map, current_center, 2, CV_RGB(0,0,255), CV_FILLED);
+					cv::circle(colour_segmented_map, current_center, 2, CV_RGB(0,0,255), cv::FILLED);
 				}
 				// color image in unique colour to show the segmentation
 				if (cv::imwrite(segmented_map_filename.c_str(), colour_segmented_map) == false)
@@ -1807,7 +1807,7 @@ public:
 				cv::Mat sequence_map = cv_ptr_seq->image;
 				// draw in trash bins
 				for (size_t i=0; i<evaluation_data.trash_bin_locations_.size(); ++i)
-					cv::circle(sequence_map, evaluation_data.trash_bin_locations_[i], 2, CV_RGB(128,0,255), CV_FILLED);
+					cv::circle(sequence_map, evaluation_data.trash_bin_locations_[i], 2, CV_RGB(128,0,255), cv::FILLED);
 				if (cv::imwrite(sequence_map_filename.c_str(), sequence_map) == false)
 					ROS_ERROR("Error on writing file '%s'", sequence_map_filename.c_str());
 				std::string sequence_detail_map_filename = lower_path + evaluation_data.map_name_ + "_sequence_detail.png";

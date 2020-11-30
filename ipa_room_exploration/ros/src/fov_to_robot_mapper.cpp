@@ -258,7 +258,7 @@ void mapPath(const cv::Mat& room_map, std::vector<geometry_msgs::Pose2D>& robot_
 //		std::cout << robot_pos << ", " << cv::Point(pose->x, pose->y) << std::endl;
 //		cv::Mat room_copy = room_map.clone();
 //		cv::line(room_copy, robot_pos, cv::Point(pose->x, pose->y), cv::Scalar(127), 1);
-//		cv::circle(room_copy, robot_pos, 2, cv::Scalar(100), CV_FILLED);
+//		cv::circle(room_copy, robot_pos, 2, cv::Scalar(100), cv::FILLED);
 //		cv::imshow("pose", room_copy);
 //		cv::waitKey();
 
@@ -310,7 +310,7 @@ void computeFOVCenterAndRadius(const std::vector<Eigen::Matrix<float, 2, 1> >& f
 	}
 	cv::fillPoly(fov_image, polygon_array, cv::Scalar(255));
 	cv::Mat fov_distance_transform;
-	cv::distanceTransform(fov_image, fov_distance_transform, CV_DIST_L2, CV_DIST_MASK_PRECISE);
+	cv::distanceTransform(fov_image, fov_distance_transform, cv::DIST_L2, cv::DIST_MASK_PRECISE);
 
 	// determine the point(s) with maximum distance to the rim of the field of view, if multiple points apply, take the one closest to the center
 	float max_dist_val = 0.;

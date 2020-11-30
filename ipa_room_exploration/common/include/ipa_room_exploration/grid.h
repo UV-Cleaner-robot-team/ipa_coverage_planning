@@ -197,7 +197,7 @@ public:
 				// use distance transform to find the pixels with maximum distance to obstacles, take from the maximum distance pixels the one
 				// closest to the original cell center
 				cv::Mat distances;
-				cv::distanceTransform(cell_pixels, distances, CV_DIST_L2, 5);
+				cv::distanceTransform(cell_pixels, distances, cv::DIST_L2, 5);
 				double max_distance = 0.;
 				cv::minMaxLoc(distances, 0, &max_distance, 0, &cell_center);
 				cell_center.x += x-half_cell_size;
@@ -225,7 +225,7 @@ public:
 //				cv::Mat disp2;
 //				cv::normalize(disp, disp, 0, 1., cv::NORM_MINMAX);
 //				cv::resize(disp, disp2, cv::Size(), 10., 10., cv::INTER_AREA);
-//				cv::circle(disp2, 10*cv::Point(cell_center.x-x+half_cell_size, cell_center.y-y+half_cell_size), 2, cv::Scalar(0), CV_FILLED);
+//				cv::circle(disp2, 10*cv::Point(cell_center.x-x+half_cell_size, cell_center.y-y+half_cell_size), 2, cv::Scalar(0), cv::FILLED);
 //				cv::imshow("distance transform", disp2);
 //				cv::waitKey();
 

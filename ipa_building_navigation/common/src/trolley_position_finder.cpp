@@ -31,7 +31,7 @@ cv::Point TrolleyPositionFinder::findOneTrolleyPosition(const std::vector<cv::Po
 	cv::Mat temporary_map = original_map.clone();
 	cv::erode(temporary_map, temporary_map, cv::Mat());
 	cv::Mat distance_map; //variable for the distance-transformed map, type: CV_32FC1
-	cv::distanceTransform(temporary_map, distance_map, CV_DIST_L2, 5);
+	cv::distanceTransform(temporary_map, distance_map, cv::DIST_L2, 5);
 	cv::convertScaleAbs(distance_map, distance_map); // conversion to 8 bit image
 
 	//

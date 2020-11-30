@@ -12,7 +12,7 @@ room_exploration_algorithm: 8
 
 # display final trajectory plan step by step
 # bool
-display_trajectory: false
+display_trajectory: true
 
 
 # map correction
@@ -31,7 +31,7 @@ return_path: true
 
 # boolean used to determine whether the server should navigate the robot along the computed coverage path
 # bool
-execute_path: false
+execute_path: true
 
 # min distance between the robot and the published navigation goal before the next goal in the path gets published
 # hack for slow turtle sim (publish new goals already when close to goal, then takes some time to command new goal)

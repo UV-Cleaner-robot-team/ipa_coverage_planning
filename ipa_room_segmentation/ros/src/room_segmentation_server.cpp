@@ -597,7 +597,7 @@ void RoomSegmentationServer::execute_segmentation_server(const ipa_building_msgs
 //		{
 //			room_centers_x_values[idx] = (min_x_value_of_the_room[idx] + max_x_value_of_the_room[idx]) / 2;
 //			room_centers_y_values[idx] = (min_y_value_of_the_room[idx] + max_y_value_of_the_room[idx]) / 2;
-//			cv::circle(segmented_map, cv::Point(room_centers_x_values[idx], room_centers_y_values[idx]), 2, cv::Scalar(200*256), CV_FILLED);
+//			cv::circle(segmented_map, cv::Point(room_centers_x_values[idx], room_centers_y_values[idx]), 2, cv::Scalar(200*256), cv::FILLED);
 //		}
 //	}
 	// use distance transform and mean shift to find good room centers that are reachable by the robot
@@ -678,7 +678,7 @@ void RoomSegmentationServer::execute_segmentation_server(const ipa_building_msgs
 			if (number_room_pixels == 0)
 				continue;
 			cv::Mat distance_map; //variable for the distance-transformed map, type: CV_32FC1
-			cv::distanceTransform(room, distance_map, CV_DIST_L2, 5);
+			cv::distanceTransform(room, distance_map, cv::DIST_L2, 5);
 			// find point set with largest distance to obstacles
 			double min_val = 0., max_val = 0.;
 			cv::minMaxLoc(distance_map, &min_val, &max_val);
@@ -717,7 +717,7 @@ void RoomSegmentationServer::execute_segmentation_server(const ipa_building_msgs
 		// colorize the segmented map with the indices of the room_center vector
 		cv::Mat color_segmented_map = indexed_map.clone();
 		color_segmented_map.convertTo(color_segmented_map, CV_8U);
-		cv::cvtColor(color_segmented_map, color_segmented_map, CV_GRAY2BGR);
+		cv::cvtColor(color_segmented_map, color_segmented_map, cv::COLOR_GRAY2BGR);
 		for(size_t i = 1; i <= room_centers_x_values.size(); ++i)
 		{
 			//choose random color for each room
@@ -729,7 +729,7 @@ void RoomSegmentationServer::execute_segmentation_server(const ipa_building_msgs
 		}
 //		cv::Mat disp = segmented_map.clone();
 		for (size_t index = 0; index < room_centers_x_values.size(); ++index)
-			cv::circle(color_segmented_map, cv::Point(room_centers_x_values[index], room_centers_y_values[index]), 2, cv::Scalar(256), CV_FILLED);
+			cv::circle(color_segmented_map, cv::Point(room_centers_x_values[index], room_centers_y_values[index]), 2, cv::Scalar(256), cv::FILLED);
 
 		cv::imshow("segmentation", color_segmented_map);
 		cv::waitKey();

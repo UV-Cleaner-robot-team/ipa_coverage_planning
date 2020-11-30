@@ -70,7 +70,7 @@ void VoronoiSegmentation::segmentMap(const cv::Mat& map_to_be_labeled, cv::Mat& 
 
 	//get the distance transformed map, which shows the distance of every white pixel to the closest zero-pixel
 	cv::Mat distance_map; //distance-map of the original-map (used to check the distance of each point to nearest black pixel)
-	cv::distanceTransform(map_to_be_labeled, distance_map, CV_DIST_L2, 5);
+	cv::distanceTransform(map_to_be_labeled, distance_map, cv::DIST_L2, 5);
 	cv::convertScaleAbs(distance_map, distance_map);
 
 	std::vector<cv::Point> critical_points; //saving-variable for the critical points found on the Voronoi-graph
@@ -161,7 +161,7 @@ void VoronoiSegmentation::segmentMap(const cv::Mat& map_to_be_labeled, cv::Mat& 
 	//the map will be different from the original one
 	cv::Mat temporary_map_to_extract_the_contours = segmented_map.clone();
 	std::vector < std::vector<cv::Point> > contours;
-	cv::findContours(temporary_map_to_extract_the_contours, contours, CV_RETR_CCOMP, CV_CHAIN_APPROX_NONE);
+	cv::findContours(temporary_map_to_extract_the_contours, contours, cv::RETR_CCOMP, cv::CHAIN_APPROX_NONE);
 
 	// 2. Get the basis-points for each critical-point
 	std::vector<cv::Point> basis_points_1, basis_points_2;
@@ -292,7 +292,7 @@ void VoronoiSegmentation::segmentMap(const cv::Mat& map_to_be_labeled, cv::Mat& 
 
 	//1. Erode map one time, so small gaps are closed
 //	cv::erode(voronoi_map_, voronoi_map_, cv::Mat(), cv::Point(-1, -1), 1);
-	cv::findContours(voronoi_map, contours, hierarchy, CV_RETR_CCOMP, CV_CHAIN_APPROX_SIMPLE);
+	cv::findContours(voronoi_map, contours, hierarchy, cv::RETR_CCOMP, cv::CHAIN_APPROX_SIMPLE);
 
 	for (int current_contour = 0; current_contour < contours.size(); current_contour++)
 	{ //only draw contours that aren't holes

@@ -343,25 +343,25 @@ void RoomSequencePlanningServer::findRoomSequenceWithCheckpointsServer(const ipa
 
 		if(return_sequence_map_ == true)
 		{
-			cv::cvtColor(floor_plan, display, CV_GRAY2BGR);
+			cv::cvtColor(floor_plan, display, cv::COLOR_GRAY2BGR);
 
 			for (size_t t=0; t<trolley_positions.size(); ++t)
 			{
 				// trolley positions + connections
 				if (t>0)
 				{
-					cv::circle(display, trolley_positions[t], 5, CV_RGB(0,0,255), CV_FILLED);
+					cv::circle(display, trolley_positions[t], 5, CV_RGB(0,0,255), cv::FILLED);
 					cv::line(display, trolley_positions[t], trolley_positions[t-1], CV_RGB(128,128,255), 1);
 				}
 				else
 				{
-					cv::circle(display, trolley_positions[t], 5, CV_RGB(255,0,0), CV_FILLED);
+					cv::circle(display, trolley_positions[t], 5, CV_RGB(255,0,0), cv::FILLED);
 				}
 
 				// room positions and connections
 				for (size_t r=0; r<cliques[t].size(); ++r)
 				{
-					cv::circle(display, room_cliques_as_points[t][r], 3, CV_RGB(0,255,0), CV_FILLED);
+					cv::circle(display, room_cliques_as_points[t][r], 3, CV_RGB(0,255,0), cv::FILLED);
 					if (r==0)
 						cv::line(display, trolley_positions[t], room_cliques_as_points[t][r], CV_RGB(255,0,0), 1);
 					else
@@ -494,7 +494,7 @@ void RoomSequencePlanningServer::findRoomSequenceWithCheckpointsServer(const ipa
 
 		if(return_sequence_map_ == true)
 		{
-			cv::cvtColor(floor_plan, display, CV_GRAY2BGR);
+			cv::cvtColor(floor_plan, display, cv::COLOR_GRAY2BGR);
 
 			for (size_t t=0; t<trolley_positions.size(); ++t)
 			{
@@ -503,18 +503,18 @@ void RoomSequencePlanningServer::findRoomSequenceWithCheckpointsServer(const ipa
 				//std::cout << "starting to draw one clique. Position: " << trolley_positions[ot] << std::endl;
 				if (t>0)
 				{
-					cv::circle(display, trolley_positions[ot], 5, CV_RGB(0,0,255), CV_FILLED);
+					cv::circle(display, trolley_positions[ot], 5, CV_RGB(0,0,255), cv::FILLED);
 					cv::line(display, trolley_positions[ot], trolley_positions[optimal_trolley_sequence[t-1]], CV_RGB(128,128,255), 1);
 				}
 				else
 				{
-					cv::circle(display, trolley_positions[ot], 5, CV_RGB(255,0,0), CV_FILLED);
+					cv::circle(display, trolley_positions[ot], 5, CV_RGB(255,0,0), cv::FILLED);
 				}
 
 				// room positions and connections
 				for (size_t r=0; r<optimal_room_sequences[ot].size(); ++r)
 				{
-					cv::circle(display, room_cliques_as_points[ot][optimal_room_sequences[ot][r]], 3, CV_RGB(0,255,0), CV_FILLED);
+					cv::circle(display, room_cliques_as_points[ot][optimal_room_sequences[ot][r]], 3, CV_RGB(0,255,0), cv::FILLED);
 					if (r==0)
 						cv::line(display, trolley_positions[ot], room_cliques_as_points[ot][optimal_room_sequences[ot][r]], CV_RGB(255,0,0), 1);
 					else

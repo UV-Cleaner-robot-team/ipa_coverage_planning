@@ -46,7 +46,7 @@ void LaserScannerRaycasting::raycasting(const cv::Mat& map, const cv::Point& loc
 		distances[angle] = temporary_distance;
 	}
 
-//	cv::circle(test_map, cv::Point(location.x, location.y), 3, cv::Scalar(50), CV_FILLED);
+//	cv::circle(test_map, cv::Point(location.x, location.y), 3, cv::Scalar(50), cv::FILLED);
 //	cv::imshow("simulated angles", test_map);
 //	cv::waitKey();
 //	return distances;

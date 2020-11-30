@@ -133,7 +133,7 @@ void NeuralNetworkExplorator::getExplorationPath(const cv::Mat& room_map, std::v
 //			neurons_[i][j].getNeighbors(neighbors);
 //			for(size_t k=0; k<neighbors.size(); ++k)
 //			{
-//				cv::circle(black_map, neighbors[k]->getPosition(), 2, cv::Scalar(127), CV_FILLED);
+//				cv::circle(black_map, neighbors[k]->getPosition(), 2, cv::Scalar(127), cv::FILLED);
 //			}
 //		}
 //	}
@@ -309,7 +309,7 @@ void NeuralNetworkExplorator::getExplorationPath(const cv::Mat& room_map, std::v
 //		printing of the path computation
 		if(show_path_computation == true)
 		{
-			cv::circle(black_map, next_neuron->getPosition(), 2, cv::Scalar((visited_neurons*5)%250), CV_FILLED);
+			cv::circle(black_map, next_neuron->getPosition(), 2, cv::Scalar((visited_neurons*5)%250), cv::FILLED);
 			cv::line(black_map, previous_neuron->getPosition(), next_neuron->getPosition(), cv::Scalar(128), 1);
 			cv::imshow("next_neuron", black_map);
 			cv::waitKey();

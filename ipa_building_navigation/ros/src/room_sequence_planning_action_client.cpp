@@ -113,7 +113,7 @@ int main(int argc, char **argv)
 		cv::Mat map_eroded;
 		cv::erode(map, map_eroded, cv::Mat(), cv::Point(-1,-1), goal_seq.robot_radius/goal_seq.map_resolution+2);
 		cv::Mat distance_map;	//variable for the distance-transformed map, type: CV_32FC1
-		cv::distanceTransform(map_eroded, distance_map, CV_DIST_L2, 5);
+		cv::distanceTransform(map_eroded, distance_map, cv::DIST_L2, 5);
 		cv::convertScaleAbs(distance_map, distance_map);	// conversion to 8 bit image
 		bool robot_start_coordinate_set = false;
 		for (int v=0; v<map_eroded.rows && robot_start_coordinate_set==false; ++v)

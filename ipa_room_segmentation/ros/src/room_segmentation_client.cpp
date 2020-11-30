@@ -194,7 +194,7 @@ int main(int argc, char **argv)
 			cv::Mat segmented_map = cv_ptr_obj->image;
 			cv::Mat colour_segmented_map = segmented_map.clone();
 			colour_segmented_map.convertTo(colour_segmented_map, CV_8U);
-			cv::cvtColor(colour_segmented_map, colour_segmented_map, CV_GRAY2BGR);
+			cv::cvtColor(colour_segmented_map, colour_segmented_map, cv::COLOR_GRAY2BGR);
 			for(size_t i = 1; i <= result_seg->room_information_in_pixel.size(); ++i)
 			{
 				//choose random color for each room
@@ -218,7 +218,7 @@ int main(int argc, char **argv)
 			for(size_t i = 0; i < result_seg->room_information_in_pixel.size(); ++i)
 			{
 				cv::Point current_center (result_seg->room_information_in_pixel[i].room_center.x, result_seg->room_information_in_pixel[i].room_center.y);
-				cv::circle(colour_segmented_map, current_center, 2, CV_RGB(0,0,255), CV_FILLED);
+				cv::circle(colour_segmented_map, current_center, 2, CV_RGB(0,0,255), cv::FILLED);
 			}
 
 			cv::imshow("segmentation", colour_segmented_map);

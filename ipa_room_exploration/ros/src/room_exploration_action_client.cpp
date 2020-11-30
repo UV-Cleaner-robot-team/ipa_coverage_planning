@@ -71,10 +71,8 @@ int main(int argc, char **argv)
 		priv_nh.param<std::string>("env_pack", env_pack_path, "ipa_room_segmentation");
 		std::string file_name;
 		priv_nh.param<std::string>("image", file_name, "map.pgm");
-		std::string map_name;
-		priv_nh.param<std::string>("robot_env", map_name, "lab_ipa");
 
-		image_path = env_pack_path + "/envs/" + map_name + "/" + file_name;
+		image_path = env_pack_path + "/maps/" + file_name;
 	}
 
 	cv::Mat map_flipped = cv::imread(image_path, 0);
@@ -118,16 +116,6 @@ int main(int argc, char **argv)
 
 	ROS_INFO("Action server started, sending goal.");
 
-	DynamicReconfigureClient drc_exp(nh, "room_exploration_server/set_parameters", "room_exploration_server/parameter_updates");
-	drc_exp.setConfig("room_exploration_algorithm", 8);
-	drc_exp.setConfig("execute_path", false);
-//	drc_exp.setConfig("path_eps", 3);
-//	drc_exp.setConfig("grid_line_length", 15);
-//	drc_exp.setConfig("path_eps", 10);
-//	drc_exp.setConfig("cell_size", 10);
-//	drc_exp.setConfig("plan_for_footprint", true);
-//	drc_exp.setConfig("goal_eps", 0.0);
-//	drc_exp.setConfig("delta_theta", 0.005);
 
 //	cv::Point2f src_center(map.cols/2.0F, map.rows/2.0F);
 //	cv::Mat rot_mat = getRotationMatrix2D(src_center, 180, 1.0);
@@ -204,7 +192,7 @@ int main(int argc, char **argv)
 	std::cout << "Got a path with " << action_result->coverage_path.size() << " nodes." << std::endl;
 
 	// display path
-	const double inverse_map_resolution = 1./goal.map_resolution;
+	/*const double inverse_map_resolution = 1./goal.map_resolution;
 	cv::Mat path_map = map.clone();
 	for (size_t point=0; point<action_result->coverage_path.size(); ++point)
 	{
@@ -217,8 +205,8 @@ int main(int argc, char **argv)
 		}
 		std::cout << "coverage_path[" << point << "]: x=" << action_result->coverage_path[point].x << ", y=" << action_result->coverage_path[point].y << ", theta=" << action_result->coverage_path[point].theta << std::endl;
 	}
-	cv::imshow("path", path_map);
-	cv::waitKey();
+	cv::imwrite("../path.jpg", path_map);
+	cv::waitKey();*/
 
 	return 0;
 }

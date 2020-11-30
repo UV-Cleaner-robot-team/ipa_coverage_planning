@@ -1063,7 +1063,7 @@ void FlowNetworkExplorator::getExplorationPath(const cv::Mat& room_map, std::vec
 //	//	Remark: rotation angle in degrees for opencv
 //	std::vector < std::vector<cv::Point> > contour;
 //	cv::Mat contour_map = room_map.clone();
-//	cv::findContours(contour_map, contour, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);
+//	cv::findContours(contour_map, contour, cv::RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);
 //
 //	// get the moment--> for a given map, there should only be one contour
 //	cv::Moments moment = cv::moments(contour[0], false);
@@ -1085,7 +1085,7 @@ void FlowNetworkExplorator::getExplorationPath(const cv::Mat& room_map, std::vec
 //
 //	// apply a binary filter to create a binary image, also use a closing operator to smooth the output (the rotation might produce
 //	// black pixels reaching into the white area that were not there before, causing new, wrong cells to open)
-//	cv::threshold(rotated_room_map, rotated_room_map, 200, 255, CV_THRESH_BINARY);
+//	cv::threshold(rotated_room_map, rotated_room_map, 200, 255, cv::THRESH_BINARY);
 //	cv::dilate(rotated_room_map, rotated_room_map, cv::Mat(), cv::Point(-1,-1), 1);
 //	cv::erode(rotated_room_map, rotated_room_map, cv::Mat(), cv::Point(-1,-1), 1);
 //	cv::imshow("rotated_room_map", rotated_room_map);
@@ -1119,8 +1119,8 @@ void FlowNetworkExplorator::getExplorationPath(const cv::Mat& room_map, std::vec
 //	max_x += 1;
 
 //	testing
-//	cv::circle(rotated_room_map, cv::Point(min_x, min_y), 3, cv::Scalar(127), CV_FILLED);
-//	cv::circle(rotated_room_map, cv::Point(max_x, max_y), 3, cv::Scalar(127), CV_FILLED);
+//	cv::circle(rotated_room_map, cv::Point(min_x, min_y), 3, cv::Scalar(127), cv::FILLED);
+//	cv::circle(rotated_room_map, cv::Point(max_x, max_y), 3, cv::Scalar(127), cv::FILLED);
 //    cv::imshow("rotated", rotated_room_map);
 //    cv::waitKey();
 
@@ -1141,14 +1141,14 @@ void FlowNetworkExplorator::getExplorationPath(const cv::Mat& room_map, std::vec
 	{
 //		cv::Mat test_map = rotated_room_map.clone();
 //		for(std::vector<cv::Point>::iterator center=cell_centers.begin(); center!=cell_centers.end(); ++center)
-//			cv::circle(test_map, *center, 2, cv::Scalar(50), CV_FILLED);
+//			cv::circle(test_map, *center, 2, cv::Scalar(50), cv::FILLED);
 //		cv::line(test_map, cv::Point(0, y), cv::Point(rotated_room_map.cols, y), cv::Scalar(127), 1);
 		for(size_t x=min_x; x<=max_x+1; x+=2.0*coverage_int)
 		{
 			// check if an obstacle has been found, only check outer parts of the occupied space
 			if(rotated_room_map.at<uchar>(y,x)==0 && (rotated_room_map.at<uchar>(y-1,x)==255 || rotated_room_map.at<uchar>(y+1,x)==255))
 			{
-//				cv::circle(test_map, cv::Point(x,y), 2, cv::Scalar(127), CV_FILLED);
+//				cv::circle(test_map, cv::Point(x,y), 2, cv::Scalar(127), cv::FILLED);
 				// check on both sides along the sweep line if a free point is available, don't exceed matrix dimensions
 				if(rotated_room_map.at<uchar>(y-coverage_int, x)==255 && y-coverage_int>=0)
 					edges.push_back(cv::Point(x, y-coverage_int));
@@ -1173,7 +1173,7 @@ void FlowNetworkExplorator::getExplorationPath(const cv::Mat& room_map, std::vec
 //			// check if an obstacle has been found, only check outer parts of the occupied space
 //			if(rotated_room_map.at<uchar>(y,x)==0 && (rotated_room_map.at<uchar>(y,x-1)==255 || rotated_room_map.at<uchar>(y,x+1)==255))
 //			{
-////				cv::circle(test_map, cv::Point(x,y), 2, cv::Scalar(127), CV_FILLED);
+////				cv::circle(test_map, cv::Point(x,y), 2, cv::Scalar(127), cv::FILLED);
 //				// check on both sides along the sweep line if a free point is available, don't exceed matrix dimensions
 //				if(rotated_room_map.at<uchar>(y, x-coverage_int)==255 && x-coverage_int>=0)
 //					edges.push_back(cv::Point(x-coverage_int, y));
@@ -1191,7 +1191,7 @@ void FlowNetworkExplorator::getExplorationPath(const cv::Mat& room_map, std::vec
 
 //	cv::Mat edges_map = rotated_room_map.clone();
 //	for(std::vector<cv::Point>::iterator p=edges.begin(); p!=edges.end(); ++p)
-//		cv::circle(edges_map, *p, 2, cv::Scalar(100), CV_FILLED);
+//		cv::circle(edges_map, *p, 2, cv::Scalar(100), cv::FILLED);
 //	cv::imshow("edges", edges_map);
 //	cv::waitKey();
 
@@ -1373,14 +1373,14 @@ void FlowNetworkExplorator::getExplorationPath(const cv::Mat& room_map, std::vec
 	// 3. retrieve the solution and create a path
 //	cv::Mat test_map = rotated_room_map.clone();
 //	for(std::vector<cv::Point>::iterator p=edges.begin(); p!=edges.end(); ++p)
-//		cv::circle(test_map, *p, 2, cv::Scalar(100), CV_FILLED);
+//		cv::circle(test_map, *p, 2, cv::Scalar(100), cv::FILLED);
 
 	std::set<uint> used_arcs; // set that stores the indices of the arcs corresponding to non-zero elements in the solution
 	// go trough the start arcs and determine the new start arcs
 	uint path_start = 0;
 //	cv::Mat test_map = rotated_room_map.clone();
 //	for(std::vector<cv::Point>::iterator p=edges.begin(); p!=edges.end(); ++p)
-//		cv::circle(test_map, *p, 2, cv::Scalar(100), CV_FILLED);
+//		cv::circle(test_map, *p, 2, cv::Scalar(100), cv::FILLED);
 	for(size_t start_arc=0; start_arc<flows_out_of_nodes[start_index].size(); ++start_arc)
 	{
 		if(C[start_arc]>0.01) // taking integer precision in solver into account
@@ -1403,7 +1403,7 @@ void FlowNetworkExplorator::getExplorationPath(const cv::Mat& room_map, std::vec
 	{
 //		cv::Mat test_map = rotated_room_map.clone();
 //		for(std::vector<cv::Point>::iterator p=edges.begin(); p!=edges.end(); ++p)
-//			cv::circle(test_map, *p, 2, cv::Scalar(100), CV_FILLED);
+//			cv::circle(test_map, *p, 2, cv::Scalar(100), cv::FILLED);
 		if(C[cover_arc]>0.01) // taking integer precision in solver into account
 		{
 //			std::cout << cover_arc-flows_out_of_nodes[start_index].size() << std::endl;
@@ -1427,7 +1427,7 @@ void FlowNetworkExplorator::getExplorationPath(const cv::Mat& room_map, std::vec
 	{
 //		cv::Mat test_map = rotated_room_map.clone();
 //		for(std::vector<cv::Point>::iterator p=edges.begin(); p!=edges.end(); ++p)
-//			cv::circle(test_map, *p, 2, cv::Scalar(100), CV_FILLED);
+//			cv::circle(test_map, *p, 2, cv::Scalar(100), cv::FILLED);
 		if(C[final_arc]>0.01)
 		{
 			// insert saved outgoing flow index
@@ -1476,7 +1476,7 @@ void FlowNetworkExplorator::getExplorationPath(const cv::Mat& room_map, std::vec
 //
 //		if(i==5)
 //		{
-//			cv::circle(node_map, edges[i], 2, cv::Scalar(127), CV_FILLED);
+//			cv::circle(node_map, edges[i], 2, cv::Scalar(127), cv::FILLED);
 //			for(std::set<uint>::iterator used=used_arcs.begin(); used!=used_arcs.end(); ++used)
 //			{
 //				if(contains(flows_out_of_nodes[i], *used)==true || contains(flows_into_nodes[i], *used)==true)
@@ -1660,7 +1660,7 @@ void FlowNetworkExplorator::getExplorationPath(const cv::Mat& room_map, std::vec
 ////	cv::imwrite("/home/rmbce/Pictures/room_exploration/coverage_path.png", test_map);
 //	for(std::vector<cv::Point>::iterator point=path_positions.begin(); point!=path_positions.end(); ++point)
 //	{
-//		cv::circle(path_map, *point, 2, cv::Scalar(127), CV_FILLED);
+//		cv::circle(path_map, *point, 2, cv::Scalar(127), cv::FILLED);
 ////		cv::imshow("path", path_map);
 ////		cv::waitKey();
 //	}

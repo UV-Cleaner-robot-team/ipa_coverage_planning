@@ -112,24 +112,24 @@ int main(int argc, char **argv)
 
 		//create maps to draw the paths in
 		cv::Mat nearest_map = map.clone();
-		cv::cvtColor(nearest_map, nearest_map, CV_GRAY2BGR);
+		cv::cvtColor(nearest_map, nearest_map, cv::COLOR_GRAY2BGR);
 		cv::Mat genetic_map = nearest_map.clone();
 		cv::Mat concorde_map = nearest_map.clone();
 
 		//draw the order into the maps
 		//	draw the start node as red
 		std::cout << "starting to draw the maps" << std::endl;
-		cv::circle(nearest_map, nodes[nearest_order[0]], 2, CV_RGB(255,0,0), CV_FILLED);
-		cv::circle(genetic_map, nodes[genetic_order[0]], 2, CV_RGB(255,0,0), CV_FILLED);
-		cv::circle(concorde_map, nodes[concorde_order[0]], 2, CV_RGB(255,0,0), CV_FILLED);
+		cv::circle(nearest_map, nodes[nearest_order[0]], 2, CV_RGB(255,0,0), cv::FILLED);
+		cv::circle(genetic_map, nodes[genetic_order[0]], 2, CV_RGB(255,0,0), cv::FILLED);
+		cv::circle(concorde_map, nodes[concorde_order[0]], 2, CV_RGB(255,0,0), cv::FILLED);
 		for(size_t i = 1; i < nearest_order.size(); ++i)
 		{
 			cv::line(nearest_map,  nodes[nearest_order[i-1]],  nodes[nearest_order[i]], CV_RGB(128,128,255), 1);
-			cv::circle(nearest_map, nodes[nearest_order[i]], 2, CV_RGB(0,0,0), CV_FILLED);
+			cv::circle(nearest_map, nodes[nearest_order[i]], 2, CV_RGB(0,0,0), cv::FILLED);
 			cv::line(genetic_map,  nodes[genetic_order[i-1]],  nodes[genetic_order[i]], CV_RGB(128,128,255), 1);
-			cv::circle(genetic_map, nodes[genetic_order[i]], 2, CV_RGB(0,0,0), CV_FILLED);
+			cv::circle(genetic_map, nodes[genetic_order[i]], 2, CV_RGB(0,0,0), cv::FILLED);
 			cv::line(concorde_map,  nodes[concorde_order[i-1]],  nodes[concorde_order[i]], CV_RGB(128,128,255), 1);
-			cv::circle(concorde_map, nodes[concorde_order[i]], 2, CV_RGB(0,0,0), CV_FILLED);
+			cv::circle(concorde_map, nodes[concorde_order[i]], 2, CV_RGB(0,0,0), cv::FILLED);
 		}
 		//draw line back to start
 		cv::line(nearest_map,  nodes[nearest_order[0]],  nodes[nearest_order.back()], CV_RGB(128,128,255), 1);

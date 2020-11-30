@@ -224,7 +224,7 @@ struct ExplorationData
 		cv::Mat map_eroded;
 		cv::erode(floor_plan_, map_eroded, cv::Mat(), cv::Point(-1,-1), robot_radius_/map_resolution_+2);
 		cv::Mat distance_map;	//variable for the distance-transformed map, type: CV_32FC1
-		cv::distanceTransform(map_eroded, distance_map, CV_DIST_L2, 5);
+		cv::distanceTransform(map_eroded, distance_map, cv::DIST_L2, 5);
 		cv::convertScaleAbs(distance_map, distance_map);	// conversion to 8 bit image
 		float max_distance = 0;
 		for (int v=0; v<map_eroded.rows; ++v)
@@ -1109,7 +1109,7 @@ public:
 				// transform the cv::Point path to geometry_msgs::Pose2D --> last point has, first point was already gone a defined angle
 				// also create output map to show path --> and check if one point has already been visited
 				bool has_crossing = false;
-				//cv::circle(path_map, cv::Point(next_pose_px.x, next_pose_px.y), 1, cv::Scalar(196), CV_FILLED);
+				//cv::circle(path_map, cv::Point(next_pose_px.x, next_pose_px.y), 1, cv::Scalar(196), cv::FILLED);
 				for(std::vector<cv::Point>::iterator point=current_interpolated_path.begin()+1; point!=current_interpolated_path.end(); ++point)
 				{
 					// check if point has been visited before and draw point into map
@@ -1380,10 +1380,10 @@ public:
 					}
 
 //					cv::Mat test_map = map.clone();
-//					cv::circle(test_map, cv::Point(pose->x, pose->y), 2, cv::Scalar(127), CV_FILLED);
-//					cv::circle(test_map, cv::Point((pose+1)->x, (pose+1)->y), 2, cv::Scalar(127), CV_FILLED);
-//					cv::circle(test_map, n1, 2, cv::Scalar(127), CV_FILLED);
-//					cv::circle(test_map, n2, 2, cv::Scalar(127), CV_FILLED);
+//					cv::circle(test_map, cv::Point(pose->x, pose->y), 2, cv::Scalar(127), cv::FILLED);
+//					cv::circle(test_map, cv::Point((pose+1)->x, (pose+1)->y), 2, cv::Scalar(127), cv::FILLED);
+//					cv::circle(test_map, n1, 2, cv::Scalar(127), cv::FILLED);
+//					cv::circle(test_map, n2, 2, cv::Scalar(127), cv::FILLED);
 //					cv::imshow("normals", test_map);
 //					cv::waitKey();
 				} while ((n1_ok || n2_ok) && ((hit_wall==false) || (hit_trajectory==false && exceeded_trajectory_parallelism_check_range==false)));

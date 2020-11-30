@@ -127,7 +127,7 @@ void GridPointExplorator::getExplorationPath(const cv::Mat& room_map, std::vecto
 //	cv::Mat point_map = rotated_room_map.clone();
 //	for(std::vector<cv::Point>::iterator point = grid_points.begin(); point != grid_points.end(); ++point)
 //	{
-//		cv::circle(point_map, *point, 2, cv::Scalar(127), CV_FILLED);
+//		cv::circle(point_map, *point, 2, cv::Scalar(127), cv::FILLED);
 //		std::cout << "  - " << *point << "\n";
 //	}
 //	cv::imshow("grid", point_map);

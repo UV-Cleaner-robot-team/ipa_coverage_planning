@@ -203,7 +203,7 @@ void EnergyFunctionalExplorator::getExplorationPath(const cv::Mat& room_map, std
 //	for (size_t i=0; i<nodes.size(); ++i)
 //		for (size_t j=0; j<nodes[i].size(); ++j)
 //			if (nodes[i][j].obstacle_==false)
-//				cv::circle(test_map, nodes[i][j].center_, 2, cv::Scalar(127), CV_FILLED);
+//				cv::circle(test_map, nodes[i][j].center_, 2, cv::Scalar(127), cv::FILLED);
 //	cv::imshow("grid", test_map);
 //	cv::waitKey();
 //	for(size_t i=0; i<nodes.size(); ++i)
@@ -214,7 +214,7 @@ void EnergyFunctionalExplorator::getExplorationPath(const cv::Mat& room_map, std
 //
 //			std::vector<EnergyExploratorNode*> neighbors = nodes[i][j].neighbors_;
 //			for(std::vector<EnergyExploratorNode*>::iterator n=neighbors.begin(); n!=neighbors.end(); ++n)
-//				cv::circle(test_map, (*n)->center_, 2, cv::Scalar(127), CV_FILLED);
+//				cv::circle(test_map, (*n)->center_, 2, cv::Scalar(127), cv::FILLED);
 //
 //			cv::imshow("neighbors", test_map);
 //			cv::waitKey();
@@ -270,7 +270,7 @@ void EnergyFunctionalExplorator::getExplorationPath(const cv::Mat& room_map, std
 		}
 	}
 //	cv::Mat path_map = rotated_room_map.clone();
-//	cv::circle(path_map, fov_coverage_path[0], 2, cv::Scalar(100), CV_FILLED);
+//	cv::circle(path_map, fov_coverage_path[0], 2, cv::Scalar(100), cv::FILLED);
 	do
 	{
 		//std::cout << "Point: " << last_node->center_ << std::endl;
@@ -326,7 +326,7 @@ void EnergyFunctionalExplorator::getExplorationPath(const cv::Mat& room_map, std
 		fov_coverage_path.push_back(cv::Point2f(next_node->center_.x, next_node->center_.y));
 		next_node->visited_ = true;	// mark visited nodes as obstacles
 
-//		cv::circle(path_map, next_node->center_, 2, cv::Scalar(100), CV_FILLED);
+//		cv::circle(path_map, next_node->center_, 2, cv::Scalar(100), cv::FILLED);
 //		cv::line(path_map, next_node->center_, last_node->center_, cv::Scalar(127));
 //		cv::imshow("path", path_map);
 //		cv::waitKey();
@@ -367,10 +367,10 @@ void EnergyFunctionalExplorator::getExplorationPath(const cv::Mat& room_map, std
 
 //	// testing
 //	cv::Mat path_map = rotated_room_map.clone();
-//	cv::circle(path_map, fov_coverage_path[0], 2, cv::Scalar(100), CV_FILLED);
+//	cv::circle(path_map, fov_coverage_path[0], 2, cv::Scalar(100), cv::FILLED);
 //	for(std::vector<cv::Point>::iterator path_node=fov_coverage_path.begin()+1; path_node!=fov_coverage_path.end(); ++path_node)
 //	{
-//		cv::circle(path_map, *path_node, 2, cv::Scalar(100), CV_FILLED);
+//		cv::circle(path_map, *path_node, 2, cv::Scalar(100), cv::FILLED);
 //		cv::line(path_map, *path_node, *(path_node-1), cv::Scalar(127));
 //		cv::imshow("path", path_map);
 //		cv::waitKey();
