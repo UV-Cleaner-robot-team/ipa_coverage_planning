@@ -52,7 +52,8 @@ void BoustrophedonExplorer::getExplorationPath(const cv::Mat& room_map, std::vec
 	ROS_INFO("Planning the boustrophedon path trough the room.");
 	const int grid_spacing_as_int = (int)std::floor(grid_spacing_in_pixel); // convert fov-radius to int
 	const int half_grid_spacing_as_int = (int)std::floor(0.5*grid_spacing_in_pixel); // convert fov-radius to int
-	const int min_cell_width = half_grid_spacing_as_int + 2.*grid_obstacle_offset/map_resolution;
+	//const int min_cell_width = half_grid_spacing_as_int + 2.*grid_obstacle_offset/map_resolution;
+	const int min_cell_width = grid_obstacle_offset/map_resolution;
 
 	// *********************** I. Find the main directions of the map and rotate it in this manner. ***********************
 	// *********************** II. Sweep a slice trough the map and mark the found cell boundaries. ***********************
@@ -62,7 +63,7 @@ void BoustrophedonExplorer::getExplorationPath(const cv::Mat& room_map, std::vec
 	cv::Mat rotated_room_map;
 	std::vector<GeneralizedPolygon> cell_polygons;
 	std::vector<cv::Point> polygon_centers;
-	computeCellDecompositionWithRotation(room_map, map_resolution, min_cell_area, min_cell_width, 0., R, bbox, rotated_room_map, cell_polygons, polygon_centers);
+	computeCellDecompositionWithRotation(room_map, map_resolution, min_cell_area, min_cell_width, 0., R, bbox, rotated_room_map, cell_polygons, polygon_centers, map_origin);
 	// does not work so well: findBestCellDecomposition(room_map, map_resolution, min_cell_area, R, bbox, rotated_room_map, cell_polygons, polygon_centers);
 
 	ROS_INFO("Found the cells in the given map.");
@@ -198,7 +199,7 @@ void BoustrophedonExplorer::getExplorationPath(const cv::Mat& room_map, std::vec
 
 void BoustrophedonExplorer::findBestCellDecomposition(const cv::Mat& room_map, const float map_resolution, const double min_cell_area,
 		const int min_cell_width, cv::Mat& R, cv::Rect& bbox, cv::Mat& rotated_room_map,
-		std::vector<GeneralizedPolygon>& cell_polygons, std::vector<cv::Point>& polygon_centers)
+		std::vector<GeneralizedPolygon>& cell_polygons, std::vector<cv::Point>& polygon_centers, const cv::Point2d map_origin)
 {
 	// *********************** I. Find the main directions of the map and rotate it in this manner. ***********************
 	// *********************** II. Sweep a slice trough the map and mark the found cell boundaries. ***********************
@@ -208,8 +209,8 @@ void BoustrophedonExplorer::findBestCellDecomposition(const cv::Mat& room_map, c
 	cv::Mat rotated_room_map_1, rotated_room_map_2;
 	std::vector<GeneralizedPolygon> cell_polygons_1, cell_polygons_2;
 	std::vector<cv::Point> polygon_centers_1, polygon_centers_2;
-	computeCellDecompositionWithRotation(room_map, map_resolution, min_cell_area, min_cell_width, 0., R_1, bbox_1, rotated_room_map_1, cell_polygons_1, polygon_centers_1);
-	computeCellDecompositionWithRotation(room_map, map_resolution, min_cell_area, min_cell_width, 90./180.*CV_PI, R_2, bbox_2, rotated_room_map_2, cell_polygons_2, polygon_centers_2);
+	computeCellDecompositionWithRotation(room_map, map_resolution, min_cell_area, min_cell_width, 0., R_1, bbox_1, rotated_room_map_1, cell_polygons_1, polygon_centers_1, map_origin);
+	computeCellDecompositionWithRotation(room_map, map_resolution, min_cell_area, min_cell_width, 90./180.*CV_PI, R_2, bbox_2, rotated_room_map_2, cell_polygons_2, polygon_centers_2, map_origin);
 
 	// select the cell decomposition with good axis alignment which produces less cells
 	if (cell_polygons_1.size() <= cell_polygons_2.size())
@@ -232,7 +233,7 @@ void BoustrophedonExplorer::findBestCellDecomposition(const cv::Mat& room_map, c
 
 void BoustrophedonExplorer::computeCellDecompositionWithRotation(const cv::Mat& room_map, const float map_resolution, const double min_cell_area,
 		const int min_cell_width, const double rotation_offset, cv::Mat& R, cv::Rect& bbox, cv::Mat& rotated_room_map,
-		std::vector<GeneralizedPolygon>& cell_polygons, std::vector<cv::Point>& polygon_centers)
+		std::vector<GeneralizedPolygon>& cell_polygons, std::vector<cv::Point>& polygon_centers, const cv::Point2d map_origin)
 {
 	// *********************** I. Find the main directions of the map and rotate it in this manner. ***********************
 	RoomRotator room_rotation;
@@ -257,11 +258,11 @@ void BoustrophedonExplorer::computeCellDecompositionWithRotation(const cv::Mat& 
 
 	// *********************** II. Sweep a slice trough the map and mark the found cell boundaries. ***********************
 	// *********************** III. Find the separated cells. ***********************
-	computeCellDecomposition(rotated_room_map, map_resolution, min_cell_area, min_cell_width, cell_polygons, polygon_centers);
+	computeCellDecomposition(rotated_room_map, map_resolution, min_cell_area, min_cell_width, cell_polygons, polygon_centers, map_origin);
 }
 
 void BoustrophedonExplorer::computeCellDecomposition(const cv::Mat& room_map, const float map_resolution, const double min_cell_area,
-		const int min_cell_width, std::vector<GeneralizedPolygon>& cell_polygons, std::vector<cv::Point>& polygon_centers)
+		const int min_cell_width, std::vector<GeneralizedPolygon>& cell_polygons, std::vector<cv::Point>& polygon_centers, const cv::Point2d map_origin)
 {
 	// *********************** II. Sweep a slice trough the map and mark the found cell boundaries. ***********************
 	// create a map copy to mark the cell boundaries
@@ -315,8 +316,9 @@ void BoustrophedonExplorer::computeCellDecomposition(const cv::Mat& room_map, co
 			{
 				if(obstacle_hit == false && room_map.at<uchar>(y,x) == 0) // check for obstacle
 				{
-					++number_of_segments;
+					
 					obstacle_hit = true;
+					++number_of_segments;
 					current_obstacles_start_x.push_back(x);
 				}
 				else if(obstacle_hit == true && room_map.at<uchar>(y,x) == 255) // check for leaving obstacle
@@ -475,8 +477,14 @@ void BoustrophedonExplorer::computeCellDecomposition(const cv::Mat& room_map, co
 		if(current_cell.getArea()>=min_cell_area)
 		{
 			cell_polygons.push_back(current_cell);
-			polygon_centers.push_back(current_cell.getCenter());			
-			std::cout<<"Cell: "<<cell+1<<"[ x = "<<polygon_centers[cell].x<<" y = "<<polygon_centers[cell].y<<" ]"<<std::endl;
+			polygon_centers.push_back(current_cell.getCenter());
+			//std::string ch = "Cell: " + std::to_string(cell+1) + " [ x = " + std::to_string(polygon_centers[cell].x) + " y = " + std::to_string(polygon_centers[cell].y) + " ]";
+			//std::cout<<ch<<std::endl;
+			//float real_x = map_resolution * polygon_centers[cell].x + map_origin.x;
+			//float real_y = map_resolution * polygon_centers[cell].y + map_origin.y;
+			//std::string ch1 = "        [ x = " + std::to_string(real_x) + " y = " + std::to_string(real_y) + " ]";
+			//std::cout<<ch1<<std::endl;
+			cell_centers.push_back(cv::Point2d(polygon_centers[cell].x, polygon_centers[cell].y));
 			cv::circle(zone, polygon_centers[cell], 2, cv::Scalar(10,150,50), cv::FILLED, cv::LINE_8);
 		}
 		else
@@ -485,7 +493,7 @@ void BoustrophedonExplorer::computeCellDecomposition(const cv::Mat& room_map, co
 		}
 	}
 	cv::imwrite("../map.jpg",zone);
-	std::cout<<"******* Map saved *******"<<std::endl;
+	ROS_INFO("%s","Map saved.");
 }
 
 int BoustrophedonExplorer::mergeCells(cv::Mat& cell_map, cv::Mat& cell_map_labels, const double min_cell_area, const int min_cell_width)

@@ -673,7 +673,7 @@ bool RoomExplorationServer::removeUnconnectedRoomParts(cv::Mat& room_map)
 	return true;
 }
 
-
+//Algo 7
 void RoomExplorationServer::downsampleTrajectory(const std::vector<geometry_msgs::Pose2D>& path_uncleaned, std::vector<geometry_msgs::Pose2D>& path, const double min_dist_squared)
 {
 	// clean path from subsequent double occurrences of the same pose

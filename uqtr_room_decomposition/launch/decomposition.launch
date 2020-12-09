@@ -1,0 +1,12 @@
+<launch>
+  <node ns="room_exploration" pkg="uqtr_room_decomposition" type="uqtr_decomposition_node" name="uqtr_decomposition_node" output="screen">
+	<rosparam file="$(find uqtr_robot)/maps/new_world_map.yaml" command="load" />
+	<param name="map_image_path" value="$(find uqtr_robot)/maps/new_world_map.pgm"/>
+	<param name="csv_file_path" value="$(find uqtr_room_decomposition)/cfg/zone_centers.csv"/>
+	<param name="min_cell_area" value="10.0"/>
+	<param name="min_cell_width" value="1.0"/>
+	<param name="rotation_offset" value="0.0"/>
+	<param name="map_correction_closing_neighborhood_size" value="2"/>
+	
+  </node>	
+</launch>

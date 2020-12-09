@@ -246,17 +246,13 @@ protected:
 	// the functions tries two axis alignments with 90deg rotation difference and chooses the one with the lower number of cells
 	void findBestCellDecomposition(const cv::Mat& room_map, const float map_resolution, const double min_cell_area,
 			const int min_cell_width, cv::Mat& R, cv::Rect& bbox, cv::Mat& rotated_room_map,
-			std::vector<GeneralizedPolygon>& cell_polygons, std::vector<cv::Point>& polygon_centers);
+			std::vector<GeneralizedPolygon>& cell_polygons, std::vector<cv::Point>& polygon_centers, const cv::Point2d map_origin);
 
-	// rotates the original map for a good axis alignment and divides it into Morse cells
-	// @param rotation_offset can be used to put an offset to the computed rotation for good axis alignment, in [rad]
-	void computeCellDecompositionWithRotation(const cv::Mat& room_map, const float map_resolution, const double min_cell_area,
-			const int min_cell_width, const double rotation_offset, cv::Mat& R, cv::Rect& bbox, cv::Mat& rotated_room_map,
-			std::vector<GeneralizedPolygon>& cell_polygons, std::vector<cv::Point>& polygon_centers);
+
 
 	// divides the provided map into Morse cells
 	void computeCellDecomposition(const cv::Mat& room_map, const float map_resolution, const double min_cell_area,
-			const int min_cell_width, std::vector<GeneralizedPolygon>& cell_polygons, std::vector<cv::Point>& polygon_centers);
+			const int min_cell_width, std::vector<GeneralizedPolygon>& cell_polygons, std::vector<cv::Point>& polygon_centers, const cv::Point2d map_origin);
 
 	// merges cells after a cell decomposition according to various criteria specified in function @mergeCellsSelection
 	// returns the number of cells after merging
@@ -301,8 +297,17 @@ public:
 				const cv::Point starting_position, const cv::Point2d map_origin, const double grid_spacing_in_pixel,
 				const double grid_obstacle_offset, const double path_eps, const int cell_visiting_order, const bool plan_for_footprint,
 				const Eigen::Matrix<float, 2, 1> robot_to_fov_vector, const double min_cell_area, const int max_deviation_from_track);
+				
+	// rotates the original map for a good axis alignment and divides it into Morse cells
+	// @param rotation_offset can be used to put an offset to the computed rotation for good axis alignment, in [rad]
+	void computeCellDecompositionWithRotation(const cv::Mat& room_map, const float map_resolution, const double min_cell_area,
+			const int min_cell_width, const double rotation_offset, cv::Mat& R, cv::Rect& bbox, cv::Mat& rotated_room_map,
+			std::vector<GeneralizedPolygon>& cell_polygons, std::vector<cv::Point>& polygon_centers, const cv::Point2d map_origin);
+			
 
 	enum CellVisitingOrder {OPTIMAL_TSP=1, LEFT_TO_RIGHT=2};
+	
+	std::vector<cv::Point2d> cell_centers;
 };
 
 
