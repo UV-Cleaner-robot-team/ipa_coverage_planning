@@ -24,6 +24,7 @@ set(catkin_RUN_PACKAGES
 	visualization_msgs
 )
 
+
 set(catkin_BUILD_PACKAGES
 	${catkin_RUN_PACKAGES}
 	dynamic_reconfigure
@@ -135,7 +136,7 @@ include_directories(
 )
 
 ### package library
-add_library(${PROJECT_NAME} STATIC
+add_library(${PROJECT_NAME} SHARED
 	common/src/grid_point_explorator.cpp
 	common/src/boustrophedon_explorator.cpp
 	common/src/neural_network_explorator.cpp
@@ -144,6 +145,7 @@ add_library(${PROJECT_NAME} STATIC
 	common/src/flow_network_explorator.cpp
 	common/src/room_rotator.cpp
 	common/src/meanshift2d.cpp
+	ros/src/fov_to_robot_mapper.cpp
 )
 target_link_libraries(${PROJECT_NAME}
 	${catkin_LIBRARIES}
@@ -163,6 +165,7 @@ add_dependencies(${PROJECT_NAME}
 	${${PROJECT_NAME}_EXPORTED_TARGETS}
 )
 
+set_property(TARGET ${PROJECT_NAME} PROPERTY POSITION_INDEPENDENT_CODE ON)
 ### room exploration action server, note: order of linking the Coin-Or packages important
 add_executable(room_exploration_server
 	ros/src/room_exploration_action_server.cpp

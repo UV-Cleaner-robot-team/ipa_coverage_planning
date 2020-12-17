@@ -148,8 +148,8 @@ include_directories(
 
 
 
-#add_library(${PROJECT_NAME} src/uqtr_room_decomposition_node.cpp include/decomposition_node.h)
-#target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} ${PROJECT_NAME}_node)
+add_library(zone_filter src/zone_filter.cpp)
+target_link_libraries(zone_filter ${catkin_LIBRARIES})
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
@@ -160,7 +160,7 @@ include_directories(
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(uqtr_decomposition_node src/uqtr_room_decomposition_node.cpp)
 add_dependencies(uqtr_decomposition_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(uqtr_decomposition_node ${catkin_LIBRARIES})
+target_link_libraries(uqtr_decomposition_node ${catkin_LIBRARIES} zone_filter)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the

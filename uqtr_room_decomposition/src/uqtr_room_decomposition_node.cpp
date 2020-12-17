@@ -53,9 +53,13 @@ int main(int argc, char **argv){
 	cv::dilate(temp, map, cv::Mat(), cv::Point(-1, -1), map_correction_closing_neighborhood_size);
 	const bool room_not_empty = removeUnconnectedRoomParts(map);
 	if (room_not_empty == false)
-	{
-		std::cout << "RoomExplorationServer::exploreRoom: Warning: the requested room is too small for generating exploration trajectories." << std::endl;
-	}
+		ROS_WARN("%s","the requested room is too small for generating exploration trajectories.");
+	
+	Zone_Filter zf;
+	
+	zf.get_edges(map);
+	zf.get_obstacle_edge_points();
+	ROS_INFO("%d obstacle points detected.", zf.obstacle_points_array.size());
 	
 	cv::Mat R;
 	cv::Rect bbox;
@@ -65,6 +69,14 @@ int main(int argc, char **argv){
 	BoustrophedonExplorer boustrophedon_explorer;
 	boustrophedon_explorer.computeCellDecompositionWithRotation(map, map_resolution, min_cell_area, ((int)(min_cell_width/map_resolution)), 0., R, bbox, rotated_room_map, cell_polygons, polygon_centers, map_origin);
 	write_csv(boustrophedon_explorer.cell_centers,csv_file_path,map_origin,map_resolution);
+	
+	
+
+	zf.get_center_points(polygon_centers);
+	zf.fill_points();
+	zf.draw(3);
+	zf.vote_out();
+	zf.erase_tail();
 	return 0;
 }
 

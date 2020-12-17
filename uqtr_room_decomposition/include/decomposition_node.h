@@ -1,3 +1,5 @@
+#pragma once
+
 // Ros specific
 #include <ros/ros.h>
 // OpenCV specific
@@ -20,7 +22,7 @@
 #include <sensor_msgs/image_encodings.h>
 // specific from this package
 #include <ipa_room_exploration/boustrophedon_explorator.h>
-
+#include <zone_filter.h>
 
 // remove unconnected, i.e. inaccessible, parts of the room (i.e. obstructed by furniture), only keep the room with the largest area
 bool removeUnconnectedRoomParts(cv::Mat& room_map);
