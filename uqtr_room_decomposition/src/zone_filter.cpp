@@ -190,7 +190,7 @@ void Zone_Filter::test_coverage(){
 	std::cout<<"Coverage rate: "<<100.0*(1.0-(float)((float)not_covered/obstacle_points_array.size()))<<std::endl;
 }
 void Zone_Filter::vote_out(){
-	std::set<unsigned int, std::greater<unsigned int> > voted;
+	std::set<unsigned int, std::greater<unsigned int>> voted;
 	while(1){
 		for(Obstacle_Point o : obstacle_points_array){
 			//count non voted obstacles
@@ -221,8 +221,13 @@ void Zone_Filter::vote_out(){
 		//std::cout<<"Zone "<<min_p<<" elliminated."<<std::endl;
 		eliminated.insert(min_p);
 	}
+	
 	std::cout<<"Eliminated zones: ";
-	for(unsigned int x : eliminated)
+	for(unsigned int x : eliminated){
 		std::cout<<x<<" ";
+		zone_centers_array.erase(zone_centers_array.begin()+x-1);
+	}
 	std::cout<<std::endl;
+	for(Zone_Center c : zone_centers_array)
+		if(eliminated.find(c.index) == eliminated.end())result_zone_list.push_back(c.center);
 }

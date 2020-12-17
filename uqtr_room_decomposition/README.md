@@ -3,3 +3,7 @@
 - There is a launch file to configure and run the decompositin.
 
 - Converage visualization added.
+
+- Coverage rate.
+
+- Elliminating useless zones to elliminate.

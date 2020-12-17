@@ -61,7 +61,7 @@ int main(int argc, char **argv){
 	
 	zf.get_edges(map);
 	zf.get_obstacle_edge_points();
-	ROS_INFO("%d obstacle points detected.", zf.obstacle_points_array.size());
+	ROS_INFO("%lu%s", zf.obstacle_points_array.size(),  "obstacle points detected.");
 	
 	cv::Mat R;
 	cv::Rect bbox;
@@ -70,7 +70,7 @@ int main(int argc, char **argv){
 	std::vector<cv::Point> polygon_centers;
 	BoustrophedonExplorer boustrophedon_explorer;
 	boustrophedon_explorer.computeCellDecompositionWithRotation(map, map_resolution, min_cell_area, ((int)(min_cell_width/map_resolution)), 0., R, bbox, rotated_room_map, cell_polygons, polygon_centers, map_origin);
-	write_csv(boustrophedon_explorer.cell_centers,csv_file_path,map_origin,map_resolution);
+	//write_csv(boustrophedon_explorer.cell_centers,csv_file_path,map_origin,map_resolution);
 	
 	
 
@@ -78,6 +78,7 @@ int main(int argc, char **argv){
 	zf.fill_points(max_uv_distance_range, map_resolution);
 	zf.test_coverage();
 	zf.vote_out();
+	write_csv(zf.result_zone_list,csv_file_path,map_origin,map_resolution);
 	for(int i=1;i<=polygon_centers.size();i++)
 		zf.draw(i);
 	return 0;
@@ -125,7 +126,7 @@ bool removeUnconnectedRoomParts(cv::Mat& room_map){
 	return true;
 }
 
-void write_csv(std::vector<cv::Point2d> cell_centers, std::string csv_file_path, cv::Point2d map_origin, double map_resolution){
+void write_csv(std::vector<cv::Point> cell_centers, std::string csv_file_path, cv::Point2d map_origin, double map_resolution){
 	std::ofstream csv(csv_file_path);
 	for(cv::Point2d p: cell_centers)
 		csv<<map_resolution*p.x+map_origin.x<<","<<map_resolution*p.y+map_origin.y<<"\n";

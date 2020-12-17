@@ -55,5 +55,6 @@ class Zone_Filter{
 	cv::Mat map_edges;
 	std::vector<Obstacle_Point> obstacle_points_array;
 	std::vector<Zone_Center> zone_centers_array;
-	std::set<unsigned int> eliminated;
+	std::vector<cv::Point> result_zone_list;
+	std::set<unsigned int, std::greater<unsigned int>> eliminated;
 };
