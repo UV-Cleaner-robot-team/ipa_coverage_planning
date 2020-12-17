@@ -1,4 +1,16 @@
 #include <zone_filter.h>
+
+float distanceCalculate(float x1, float y1, float x2, float y2){
+	double x = x1 - x2;
+	double y = y1 - y2;
+	double dist;
+
+	dist = pow(x, 2) + pow(y, 2);
+	dist = sqrt(dist);                  
+
+	return dist;
+}
+
 Obstacle_Point::Obstacle_Point(cv::Point p){
 	point = p;
 }
@@ -10,10 +22,10 @@ Zone_Center::Zone_Center(cv::Point c, unsigned int i){
 
 Segment::Segment(cv::Point c, cv::Point e){
 	get_line_points(c, e);
+	distance = distanceCalculate(c.x, c.y, e.x, e.y);
 }
 
 void Segment::get_line_points(cv::Point c, cv::Point e){
-	std::vector<cv::Point> line_points;
 	int lx, ly, sx, sy;float ay, ax, by, bx;
 	
 	if(c.x > e.x){
@@ -108,23 +120,25 @@ void Zone_Filter::get_center_points(std::vector<cv::Point> cell_centers){
 	
 }
 
-void Zone_Filter::fill_points(){
-	
+void Zone_Filter::fill_points(float d_max, float resolution){
+	float d_max_p = d_max / resolution;
 	for(int m=0; m<zone_centers_array.size();m++){
 		//std::cout<<std::endl<<"Center index: "<<zone_centers_array[m].index<<std::endl;
 		for(int q=0; q<obstacle_points_array.size();q++){
 			Segment s(zone_centers_array[m].center, obstacle_points_array[q].point);
 			bool obstacle_detected = false;
-			if(s.point_array.size() > 2){
+			if(d_max_p < s.distance)
+				obstacle_detected = true;
+			else if(s.point_array.size() > 2){
 				for(int n=1; n<s.point_array.size()-1;n++){
-					cv::Point* p;
-					*p = s.point_array[n];
-					if(map.at<uchar>(p->y, p->x) < 200){
+					cv::Point p = s.point_array[n];
+					if(map.at<uchar>(p.y, p.x) < 200){
 						obstacle_detected = true;
 						break;
 					}
 				}
 			}
+			
 			if(!obstacle_detected){
 				zone_centers_array[m].exposed_points.push_back(obstacle_points_array[q].point);
 				obstacle_points_array[q].exposed_to.push_back(zone_centers_array[m].index);
@@ -132,6 +146,7 @@ void Zone_Filter::fill_points(){
 		}
 		//std::cout<<zone_centers_array[m].exposed_points.size()<<std::endl;
 	}
+	
 }
 
 void Zone_Filter::draw(unsigned int index){
@@ -145,8 +160,9 @@ void Zone_Filter::draw(unsigned int index){
 	for(cv::Point p : s.point_array){
 		out.at<uchar>(p.x, p.y) = 100;
 	}*/
-	cv::imshow("out",out);
+	cv::imshow("Zone " + std::to_string(index) ,out);
 	cv::waitKey(0);
+	cv::destroyAllWindows();
 }
 
 void Zone_Filter::fill_draw_debug(unsigned int index){
@@ -165,29 +181,31 @@ void Zone_Filter::fill_draw_debug(unsigned int index){
 	}
 }
 
+void Zone_Filter::test_coverage(){
+	unsigned long int not_covered = 0;
+	for(Obstacle_Point o : obstacle_points_array){
+		if(o.exposed_to.size() == 0) not_covered++;
+	}
+	
+	std::cout<<"Coverage rate: "<<100.0*(1.0-(float)((float)not_covered/obstacle_points_array.size()))<<std::endl;
+}
 void Zone_Filter::vote_out(){
-	std::set<unsigned int, std::greater<unsigned int> > voting;
 	std::set<unsigned int, std::greater<unsigned int> > voted;
 	while(1){
 		for(Obstacle_Point o : obstacle_points_array){
 			//count non voted obstacles
-			std::vector<unsigned int> tmp;
+			unsigned int tmp;int n = 0;
 			for(unsigned int u : o.exposed_to){
 				if((voted.find(u) == voted.end()) || (!voted.empty())){
-					tmp.push_back(u);
+					tmp = u;n++;
 				}
 			}
-			if(tmp.size() > 1){
-				for(unsigned int i : tmp)
-					voting.insert(i);
-			}
-			else if(tmp.size() == 1){
-				voted.insert(tmp[0]);
-				voting.erase(tmp[0]);
+			if(n == 1){
+				voted.insert(tmp);
 			}
 			//std::cout<<tmp.size()<<" ";
 		}
-		std::cout<<"There are "<<zone_centers_array.size()-voted.size()<<" zones could be elliminated."<<std::endl;
+		//std::cout<<"There are "<<zone_centers_array.size()-voted.size()<<" zones could be elliminated."<<std::endl;
 		//for(unsigned int p : voted)std::cout<<p<<" ";
 		//std::cout<<std::endl;
 		//Get minimum exposed points zone to elliminate.
@@ -198,13 +216,13 @@ void Zone_Filter::vote_out(){
 				min_p = zone_centers_array[m].index;
 			}
 		}
-		voted.insert(min_p);
-		voting.erase(min_p);
 		if(min_p == -1)break;
-		std::cout<<"Zone "<<min_p<<" elliminated."<<std::endl;
+		voted.insert(min_p);
+		//std::cout<<"Zone "<<min_p<<" elliminated."<<std::endl;
+		eliminated.insert(min_p);
 	}
-}
-
-void Zone_Filter::erase_tail(){
-
+	std::cout<<"Eliminated zones: ";
+	for(unsigned int x : eliminated)
+		std::cout<<x<<" ";
+	std::cout<<std::endl;
 }

@@ -23,6 +23,8 @@ int main(int argc, char **argv){
 	p_nh.param("resolution", map_resolution, 0.05);
 	std::vector<double> origin (3,0);
 	p_nh.param("origin", origin, origin);
+	double max_uv_distance_range;
+	p_nh.param("max_uv_distance_range", max_uv_distance_range, 50.0);
 
 	const cv::Point2d map_origin(origin[0], origin[1]);
 	cv::Mat room_map = cv::imread(map_image_path,0);
@@ -73,10 +75,11 @@ int main(int argc, char **argv){
 	
 
 	zf.get_center_points(polygon_centers);
-	zf.fill_points();
-	zf.draw(3);
+	zf.fill_points(max_uv_distance_range, map_resolution);
+	zf.test_coverage();
 	zf.vote_out();
-	zf.erase_tail();
+	for(int i=1;i<=polygon_centers.size();i++)
+		zf.draw(i);
 	return 0;
 }
 
