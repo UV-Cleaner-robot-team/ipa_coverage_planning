@@ -16,7 +16,8 @@ find_package(catkin REQUIRED  COMPONENTS
 	nav_msgs
 	roscpp
 	std_msgs
-	
+	actionlib
+	 
 	ipa_building_navigation
 	ipa_room_exploration
 )

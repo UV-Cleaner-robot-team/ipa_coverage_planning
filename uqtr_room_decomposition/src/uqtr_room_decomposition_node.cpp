@@ -3,10 +3,12 @@
 
 
 int main(int argc, char **argv){
+	//Initialization.
 	ros::init(argc, argv, "uqtr_room_decomposition");
 	ros::NodeHandle nh;
 	ros::NodeHandle p_nh("~");
-	
+
+	//Read ROS Pram configurations from the launch file.
 	std::string map_image_path;
 	p_nh.param<std::string>("map_image_path", map_image_path,"");
 	std::string csv_file_path;
@@ -25,7 +27,18 @@ int main(int argc, char **argv){
 	p_nh.param("origin", origin, origin);
 	double max_uv_distance_range;
 	p_nh.param("max_uv_distance_range", max_uv_distance_range, 50.0);
+	double robot_radius_p;unsigned int robot_radius;
+	p_nh.param("robot_radius", robot_radius_p, 1.0);
+	robot_radius = (unsigned int)((robot_radius_p + 1) * map_resolution);
+	
+	//Initialization of move_base.
+	MoveBaseClient ac("/move_base", true);
+	while(!ac.waitForServer(ros::Duration(5.0)))
+		ROS_INFO("Waiting for the move_base action server to come up");
+	move_base_msgs::MoveBaseGoal goal;
+	goal.target_pose.header.frame_id = "base_link";
 
+	//Decoposition algoritme pre-calculations.
 	const cv::Point2d map_origin(origin[0], origin[1]);
 	cv::Mat room_map = cv::imread(map_image_path,0);
 	room_map.convertTo(room_map,CV_8UC1);
@@ -49,7 +62,7 @@ int main(int argc, char **argv){
 		}
 	}
 	ROS_INFO("%s%d%s%d","map-size: ", map.rows, "x", map.cols);
-		// closing operation to neglect inaccessible areas and map errors/artifacts
+	// closing operation to neglect inaccessible areas and map errors/artifacts
 	cv::Mat temp;
 	cv::erode(map, temp, cv::Mat(), cv::Point(-1, -1), map_correction_closing_neighborhood_size);
 	cv::dilate(temp, map, cv::Mat(), cv::Point(-1, -1), map_correction_closing_neighborhood_size);
@@ -57,12 +70,7 @@ int main(int argc, char **argv){
 	if (room_not_empty == false)
 		ROS_WARN("%s","the requested room is too small for generating exploration trajectories.");
 	
-	Zone_Filter zf;
-	
-	zf.get_edges(map);
-	zf.get_obstacle_edge_points();
-	ROS_INFO("%lu%s", zf.obstacle_points_array.size(),  "obstacle points detected.");
-	
+	//Decompose the map into zones unsing the boustrophedon decomposition algorithm.
 	cv::Mat R;
 	cv::Rect bbox;
 	cv::Mat rotated_room_map;
@@ -70,17 +78,36 @@ int main(int argc, char **argv){
 	std::vector<cv::Point> polygon_centers;
 	BoustrophedonExplorer boustrophedon_explorer;
 	boustrophedon_explorer.computeCellDecompositionWithRotation(map, map_resolution, min_cell_area, ((int)(min_cell_width/map_resolution)), 0., R, bbox, rotated_room_map, cell_polygons, polygon_centers, map_origin);
-	//write_csv(boustrophedon_explorer.cell_centers,csv_file_path,map_origin,map_resolution);
 	
 	
-
+	//Eliminate useless zones and improve the decomposition.
+	Zone_Filter zf(robot_radius, map);
+	
+	zf.get_edges();
+	zf.get_obstacle_edge_points();
+	ROS_INFO("%lu%s", zf.obstacle_points_array.size(),  "obstacle points detected.");
 	zf.get_center_points(polygon_centers);
 	zf.fill_points(max_uv_distance_range, map_resolution);
 	zf.test_coverage();
 	zf.vote_out();
+	
+	//Save the zone centers cordinates in csv file.
 	write_csv(zf.result_zone_list,csv_file_path,map_origin,map_resolution);
-	for(int i=1;i<=polygon_centers.size();i++)
+	
+	//Drive the robot to zone centers and simultaneously visulize the 
+	//zone center and the covered obstacles.
+	for(int i=1;i<=zf.zone_centers_array.size();i++){
+		if(zf.eliminated.find(i) != zf.eliminated.end())continue;
 		zf.draw(i);
+		goal.target_pose.header.stamp = ros::Time::now();
+		goal.target_pose.pose.position.x = (float)(zf.zone_centers_array[i-1].center.x)*map_resolution+map_origin.x);
+		goal.target_pose.pose.position.y = (float)(zf.zone_centers_array[i-1].center.y)*map_resolution+map_origin.y);
+		goal.target_pose.pose.orientation.w = 0.1;
+		goal.target_pose.pose.orientation.z = 0;
+		ROS_INFO("Going to zone %u [x = %f,\ty = %f]", i, goal.target_pose.pose.position.x, goal.target_pose.pose.position.y);
+		ac.sendGoal(goal);
+		ac.waitForResult();
+	}
 	return 0;
 }
 
@@ -126,6 +153,17 @@ bool removeUnconnectedRoomParts(cv::Mat& room_map){
 	return true;
 }
 
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
+ * Function: Write zone centers cordinates in a csv file.			   *
+ * Paramaters: 														   *
+ * 		cell_centers: Center point.									   *
+ * 		csv_file_path: Edge point. (They could be inverted. Implemented*
+ * 		like this.													   *
+ * 			for future reasons.) 									   *
+ * 		map_origin: Map origin in meters(In .yaml map file).		   *
+ * 		map_resolution: Map resolution(In .yaml map file).			   *
+ * Return: No return.												   *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 void write_csv(std::vector<cv::Point> cell_centers, std::string csv_file_path, cv::Point2d map_origin, double map_resolution){
 	std::ofstream csv(csv_file_path);
 	for(cv::Point2d p: cell_centers)

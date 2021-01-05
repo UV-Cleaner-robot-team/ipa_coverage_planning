@@ -1,33 +1,32 @@
 #include <zone_filter.h>
 
-float distanceCalculate(float x1, float y1, float x2, float y2){
-	double x = x1 - x2;
-	double y = y1 - y2;
-	double dist;
 
-	dist = pow(x, 2) + pow(y, 2);
-	dist = sqrt(dist);                  
-
-	return dist;
-}
-
-Obstacle_Point::Obstacle_Point(cv::Point p){
-	point = p;
-}
-
-Zone_Center::Zone_Center(cv::Point c, unsigned int i){
-	center = c;
-	index = i;
-}
-
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
+ * Function: Class constructor.										   *
+ * Paramaters: 														   *
+ * 		c: Center point.											   *
+ * 		e: Edge point. (They could be inverted. Implemented like this  *
+ * 			for future reasons.) 									   *
+ * Return: No return.												   *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 Segment::Segment(cv::Point c, cv::Point e){
 	get_line_points(c, e);
 	distance = distanceCalculate(c.x, c.y, e.x, e.y);
 }
 
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
+ * Function: Compute a set  of points forming a straight line from	   *
+ * 		point c to point e.											   *
+ * Paramaters: 														   *
+ * 		c: Center point.											   *
+ * 		e: Edge point. (They could be inverted. Implemented like this  *
+ * 			for future reasons.) 									   *
+ * Return: No return.												   *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 void Segment::get_line_points(cv::Point c, cv::Point e){
 	int lx, ly, sx, sy;float ay, ax, by, bx;
-	
+	//Calculate the segment start point and the length of the longest 
+	//X,Y decomposition.
 	if(c.x > e.x){
 		lx = c.x - e.x;
 		sx = e.x;
@@ -45,6 +44,8 @@ void Segment::get_line_points(cv::Point c, cv::Point e){
 		ly = e.y - c.y;
 		sy = c.y;
 	}
+	
+	//Calculate the segment equation and the approximation of the points.
 	if(ly == 0){
 		for(int u=0;u<lx;u++){
 			point_array.push_back(cv::Point(sx+u,sy));
@@ -76,22 +77,84 @@ void Segment::get_line_points(cv::Point c, cv::Point e){
 
 }
 
-Zone_Filter::Zone_Filter(){}
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
+ * Function: Compute the distance from point c to point e.			   *
+ * Paramaters: 														   *
+ * 		c: Center point.											   *
+ * 		e: Edge point. (They could be inverted. Implemented like this  *
+ * 			for future reasons.) 									   *
+ * Return: No return.												   *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+float Segment::distanceCalculate(float x1, float y1, float x2, float y2){
+	//Euclidian distance.
+	double x = x1 - x2;
+	double y = y1 - y2;
+	double dist;
 
-void Zone_Filter::get_edges(cv::Mat room_map){
+	dist = pow(x, 2) + pow(y, 2);
+	dist = sqrt(dist);                  
+
+	return dist;
+}
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
+ * Function: Class constructor.										   *
+ * Paramaters: 														   *
+ * 		c: Center point of the zone.								   *
+ * 		i: The zone index.											   *
+ * Return: No return.												   *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+Zone_Center::Zone_Center(cv::Point c, unsigned int i){
+	center = c;
+	index = i;
+}
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
+ * Function: Class constructor.										   *
+ * Paramaters: 														   *
+ * 		p: Obstacle point.											   *
+ * Return: No return.												   *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+Obstacle_Point::Obstacle_Point(cv::Point p){
+	point = p;
+}
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
+ * Function: Class constructor.										   *
+ * Paramaters: 														   *
+ * 		rr: Robot radius.											   *
+ * Return: No return.												   *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+Zone_Filter::Zone_Filter(unsigned int rr, cv::Mat room_map){
+	robot_radius = rr;
 	map = room_map.clone();
+}
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
+ * Function: Assign Extract contours from "map" & save them in 		   *
+ * 		"map_edges".												   *
+ * Paramaters: 														   *
+ * 		room_map: 													   *
+ * Return: No return.												   *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+void Zone_Filter::get_edges(){
 	map.convertTo(map,CV_8U);
+	normalize(map, map, 255, 0, cv::NORM_MINMAX, CV_8U);
 	cv::Canny(map, map_edges, 0, 1, 3);
 	normalize(map_edges, map_edges, 255, 0, cv::NORM_MINMAX, CV_8U);
-	normalize(map, map, 255, 0, cv::NORM_MINMAX, CV_8U);
 	/*cv::imshow("map_edges",map_edges);
 	cv::waitKey(0);*/
 }
 
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
+ * Function: Fill the "obstacle_points_array" with points from 		   *
+ * 		"map_edges".													   *
+ * Paramaters: 	 													   *
+ * Return: No return.												   *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 void Zone_Filter::get_obstacle_edge_points(){
-	
-	//cv::imshow("map_edges",map_edges);
-	cv::waitKey(0);
+	//Create an "Obstacle_Point" object for every point on the map edges
+	//and push them to the array.
 	for(int u=0; u<map_edges.rows;u++)
 		for(int v=0; v<map_edges.cols;v++)
 			if(map_edges.at<uchar>(u,v) > 250){
@@ -113,17 +176,32 @@ void Zone_Filter::get_obstacle_edge_points(){
 	cv::waitKey(0);*/
 }
 
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
+ * Function: Fill the "zone_centers_array" with points from the 	   *
+ * 		decomposition algorithme output.							   *
+ * Paramaters: 	 													   *
+ * Return: No return.												   *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 void Zone_Filter::get_center_points(std::vector<cv::Point> cell_centers){
+	//Create an "Zone_Center" object for every zone center and push them
+	//to the array.
 	unsigned int index = 0;
 	for(cv::Point c : cell_centers)
 		zone_centers_array.push_back(Zone_Center(c,++index));
 	
 }
 
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
+ * Function: Fill the "zone_centers_array" with points from the 	   *
+ * 		decomposition algorithme output.							   *
+ * Paramaters: 	 													   *
+ * 		d_max: La portée des rayons UV.								   *
+ * 		resolution: La resolution du map.							   *
+ * Return: No return.												   *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 void Zone_Filter::fill_points(float d_max, float resolution){
 	float d_max_p = d_max / resolution;
 	for(int m=0; m<zone_centers_array.size();m++){
-		//std::cout<<std::endl<<"Center index: "<<zone_centers_array[m].index<<std::endl;
 		for(int q=0; q<obstacle_points_array.size();q++){
 			Segment s(zone_centers_array[m].center, obstacle_points_array[q].point);
 			bool obstacle_detected = false;
@@ -149,6 +227,13 @@ void Zone_Filter::fill_points(float d_max, float resolution){
 	
 }
 
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
+ * Function: Visualisation of zone centers and their respective covered*
+ *  		obstacle edges.											   *
+ * Paramaters: 	 													   *
+ * 		index: Zone index to visualize.								   *
+ * Return: No return.												   *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 void Zone_Filter::draw(unsigned int index){
 	cv::Mat out = map.clone();
 	cv::circle(out, zone_centers_array[index-1].center, 3, cv::Scalar(150,150,50), cv::FILLED, cv::LINE_8);
@@ -165,6 +250,12 @@ void Zone_Filter::draw(unsigned int index){
 	cv::destroyAllWindows();
 }
 
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
+ * Function: Debugging the fill_points function.					   *
+ * Paramaters: 	 													   *
+ * 		index: Zone index to visualize.								   *
+ * Return: No return.												   *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 void Zone_Filter::fill_draw_debug(unsigned int index){
 	cv::Point c(100,100);
 	cv::Mat out = map_edges.clone();
@@ -181,6 +272,11 @@ void Zone_Filter::fill_draw_debug(unsigned int index){
 	}
 }
 
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
+ * Function: Output the rate of coverage of obstacle edges.			   *
+ * Paramaters: 	 													   *
+ * Return: No return.												   *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 void Zone_Filter::test_coverage(){
 	unsigned long int not_covered = 0;
 	for(Obstacle_Point o : obstacle_points_array){
@@ -189,6 +285,14 @@ void Zone_Filter::test_coverage(){
 	
 	std::cout<<"Coverage rate: "<<100.0*(1.0-(float)((float)not_covered/obstacle_points_array.size()))<<std::endl;
 }
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
+ * Function: Elliminate zone centers that covers already covered 	   *
+ * obstacles.														   *
+ * Paramaters: 	 													   *
+ * 		index: Zone index to visualize.								   *
+ * Return: No return.												   *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 void Zone_Filter::vote_out(){
 	std::set<unsigned int, std::greater<unsigned int>> voted;
 	while(1){

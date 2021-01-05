@@ -23,7 +23,12 @@
 // specific from this package
 #include <ipa_room_exploration/boustrophedon_explorator.h>
 #include <zone_filter.h>
+#include <actionlib/client/simple_action_client.h>
+#include <move_base_msgs/MoveBaseAction.h>
+
+typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseClient;
 
 // remove unconnected, i.e. inaccessible, parts of the room (i.e. obstructed by furniture), only keep the room with the largest area
 bool removeUnconnectedRoomParts(cv::Mat& room_map);
+//Write the zone centers array real cordinates in a csv file.
 void write_csv(std::vector<cv::Point> cell_centers, std::string csv_file_path, cv::Point2d map_origin, double map_resolution);
