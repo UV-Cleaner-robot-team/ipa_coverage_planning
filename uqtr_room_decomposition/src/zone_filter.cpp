@@ -246,6 +246,7 @@ void Zone_Filter::draw(unsigned int index){
 		out.at<uchar>(p.x, p.y) = 100;
 	}*/
 	cv::imshow("Zone " + std::to_string(index) ,out);
+	correct_pose_cordinates(index);
 	cv::waitKey(0);
 	cv::destroyAllWindows();
 }
@@ -334,4 +335,33 @@ void Zone_Filter::vote_out(){
 	std::cout<<std::endl;
 	for(Zone_Center c : zone_centers_array)
 		if(eliminated.find(c.index) == eliminated.end())result_zone_list.push_back(c.center);
+}
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
+ * Function: Elliminate zone centers that covers already covered 	   *
+ * obstacles.														   *
+ * Paramaters: 	 													   *
+ * 		index: Zone index to visualize.								   *
+ * Return: No return.												   *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+void Zone_Filter::correct_pose_cordinates(unsigned int index){
+	Zone_Center zc = zone_centers_array[index-1];
+	unsigned int robot_footprint_width = (unsigned int)((double)robot_radius * 0.6);
+	cv::Rect roi(cv::Point(zc.center.x-robot_footprint_width,zc.center.y-robot_footprint_width),
+								cv::Point(zc.center.x+robot_footprint_width,zc.center.y+robot_footprint_width));
+	cv::Mat tmp = map(roi);
+	long int x=0,y=0;unsigned int c=0;
+	for(int i = 0;i<tmp.cols;i++)
+		for(int j = 0;j<tmp.rows;j++){
+			if(tmp.at<uchar>(i, j) == 0){
+				c++;
+				x = x + j;
+				y = y + i;
+			}
+		}
+	x = x/c - robot_footprint_width;
+	y = y/c - robot_footprint_width;
+	
+	std::cout<<"x = "<<x<<" y = "<<y<<std::endl;
+	cv::imshow("tmp",tmp);
 }

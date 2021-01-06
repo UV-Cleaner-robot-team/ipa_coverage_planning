@@ -96,6 +96,7 @@ class Zone_Filter{
 	void fill_draw_debug(unsigned int index);
 	void test_coverage();
 	void vote_out();
+	void correct_pose_cordinates(unsigned int index);
 	
 	unsigned int robot_radius;
 	cv::Mat map;

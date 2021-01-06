@@ -27,9 +27,9 @@ int main(int argc, char **argv){
 	p_nh.param("origin", origin, origin);
 	double max_uv_distance_range;
 	p_nh.param("max_uv_distance_range", max_uv_distance_range, 50.0);
-	double robot_radius_p;unsigned int robot_radius;
-	p_nh.param("robot_radius", robot_radius_p, 1.0);
-	robot_radius = (unsigned int)((robot_radius_p + 1) * map_resolution);
+	double robot_radius_m;unsigned int robot_radius;
+	p_nh.param("robot_radius", robot_radius_m, 1.0);
+	robot_radius = (unsigned int)(robot_radius_m / map_resolution);
 	
 	//Initialization of move_base.
 	MoveBaseClient ac("/move_base", true);
@@ -85,7 +85,7 @@ int main(int argc, char **argv){
 	
 	zf.get_edges();
 	zf.get_obstacle_edge_points();
-	ROS_INFO("%lu%s", zf.obstacle_points_array.size(),  "obstacle points detected.");
+	ROS_INFO("%lu%s", zf.obstacle_points_array.size(),  " obstacle points detected.");
 	zf.get_center_points(polygon_centers);
 	zf.fill_points(max_uv_distance_range, map_resolution);
 	zf.test_coverage();
@@ -100,8 +100,8 @@ int main(int argc, char **argv){
 		if(zf.eliminated.find(i) != zf.eliminated.end())continue;
 		zf.draw(i);
 		goal.target_pose.header.stamp = ros::Time::now();
-		goal.target_pose.pose.position.x = (float)(zf.zone_centers_array[i-1].center.x)*map_resolution+map_origin.x);
-		goal.target_pose.pose.position.y = (float)(zf.zone_centers_array[i-1].center.y)*map_resolution+map_origin.y);
+		goal.target_pose.pose.position.x = (float)(zf.zone_centers_array[i-1].center.x)*map_resolution+map_origin.x;
+		goal.target_pose.pose.position.y = (float)(zf.zone_centers_array[i-1].center.y)*map_resolution+map_origin.y;
 		goal.target_pose.pose.orientation.w = 0.1;
 		goal.target_pose.pose.orientation.z = 0;
 		ROS_INFO("Going to zone %u [x = %f,\ty = %f]", i, goal.target_pose.pose.position.x, goal.target_pose.pose.position.y);
