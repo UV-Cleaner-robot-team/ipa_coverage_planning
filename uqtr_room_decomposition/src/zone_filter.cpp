@@ -357,12 +357,14 @@ void Zone_Filter::correct_pose_cordinates(unsigned int index){
 			}
 		}
 	cv::imshow("tmp",tmp);
-	std::cout<<"x = "<<x/c-robot_footprint_width<<" y = "<<y/c-robot_footprint_width<<std::endl;
-	x = x/c + robot_footprint_width;
-	y = y/c + robot_footprint_width;
-	
-	std::cout<<"x = "<<zone_centers_array[index-1].center.x<<" y = "<<zone_centers_array[index-1].center.y<<std::endl;
-	zone_centers_array[index-1].center.x = zone_centers_array[index-1].center.x + x;
-	zone_centers_array[index-1].center.y = zone_centers_array[index-1].center.y + y;
-	std::cout<<"x = "<<zone_centers_array[index-1].center.x<<" y = "<<zone_centers_array[index-1].center.y<<std::endl;
+	if(c != 0){
+		//std::cout<<"x = "<<x/c-robot_footprint_width<<" y = "<<y/c-robot_footprint_width<<std::endl;
+		x = x/c + robot_footprint_width;
+		y = y/c + robot_footprint_width;
+		
+		//std::cout<<"x = "<<zone_centers_array[index-1].center.x<<" y = "<<zone_centers_array[index-1].center.y<<std::endl;
+		zone_centers_array[index-1].center.x = zone_centers_array[index-1].center.x + x;
+		zone_centers_array[index-1].center.y = zone_centers_array[index-1].center.y + y;
+		//std::cout<<"x = "<<zone_centers_array[index-1].center.x<<" y = "<<zone_centers_array[index-1].center.y<<std::endl;
+	}
 }

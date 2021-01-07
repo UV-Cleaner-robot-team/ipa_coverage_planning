@@ -30,13 +30,6 @@ int main(int argc, char **argv){
 	double robot_radius_m;unsigned int robot_radius;
 	p_nh.param("robot_radius", robot_radius_m, 1.0);
 	robot_radius = (unsigned int)(robot_radius_m / map_resolution);
-	
-	//Initialization of move_base.
-	MoveBaseClient ac("/move_base", true);
-	while(!ac.waitForServer(ros::Duration(5.0)))
-		ROS_INFO("Waiting for the move_base action server to come up");
-	move_base_msgs::MoveBaseGoal goal;
-	goal.target_pose.header.frame_id = "base_link";
 
 	//Decoposition algoritme pre-calculations.
 	const cv::Point2d map_origin(origin[0], origin[1]);
@@ -94,17 +87,33 @@ int main(int argc, char **argv){
 	//Save the zone centers cordinates in csv file.
 	write_csv(zf.result_zone_list,csv_file_path,map_origin,map_resolution);
 	
+	//Initialization of move_base.
+	MoveBaseClient ac("/move_base", true);
+	while(!ac.waitForServer(ros::Duration(5.0)))
+		ROS_INFO("Waiting for the move_base action server to come up");
+	
 	//Drive the robot to zone centers and simultaneously visulize the 
 	//zone center and the covered obstacles.
+	unsigned int seq = 0;//The move base message header sequence.
 	for(int i=1;i<=zf.zone_centers_array.size();i++){
+		std::cout<<"Goal N° "<<i<<std::endl;
 		if(zf.eliminated.find(i) != zf.eliminated.end())continue;
 		zf.correct_pose_cordinates(i);
 		zf.draw(i);
+		
+		move_base_msgs::MoveBaseGoal goal;
+		
 		goal.target_pose.header.stamp = ros::Time::now();
+		goal.target_pose.header.seq = seq++;
+		goal.target_pose.header.frame_id = "map";
+		
 		goal.target_pose.pose.position.x = (float)(zf.zone_centers_array[i-1].center.x)*map_resolution+map_origin.x;
 		goal.target_pose.pose.position.y = (float)(zf.zone_centers_array[i-1].center.y)*map_resolution+map_origin.y;
-		goal.target_pose.pose.orientation.w = 0.1;
+		goal.target_pose.pose.position.z = 0;
+		goal.target_pose.pose.orientation.w = 1.0;
 		goal.target_pose.pose.orientation.z = 0;
+		goal.target_pose.pose.orientation.x = 0;
+		goal.target_pose.pose.orientation.y = 0;
 		ROS_INFO("Going to zone %u [x = %f,\ty = %f]", i, goal.target_pose.pose.position.x, goal.target_pose.pose.position.y);
 		ac.sendGoal(goal);
 		ac.waitForResult();

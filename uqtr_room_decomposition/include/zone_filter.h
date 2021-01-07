@@ -87,6 +87,7 @@ class Obstacle_Point{
 class Zone_Filter{
 	public:
 	
+	Zone_Filter(){};
 	Zone_Filter(unsigned int rr, cv::Mat room_map);
 	void get_edges();
 	void get_obstacle_edge_points();

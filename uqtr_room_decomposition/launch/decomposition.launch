@@ -8,7 +8,7 @@
 	<param name="rotation_offset" value="0.0"/>
 	<param name="map_correction_closing_neighborhood_size" value="2"/>
 	<param name="max_uv_distance_range" value="10.0"/>
-	<param name="robot_radius" value="1.0"/>
+	<param name="robot_radius" value="1.5"/>
 	
   </node>	
 </launch>
