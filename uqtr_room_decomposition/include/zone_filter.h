@@ -95,8 +95,8 @@ class Zone_Filter{
 	void fill_points(float d_max, float resolution);
 	void draw(unsigned int index);
 	void fill_draw_debug(unsigned int index);
-	void test_coverage();
-	void vote_out();
+	float test_coverage();
+	std::set<unsigned int, std::greater<unsigned int>> vote_out();
 	void correct_pose_cordinates(unsigned int index);
 	void show_non_covered();
 	

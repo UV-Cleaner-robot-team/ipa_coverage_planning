@@ -37,6 +37,7 @@ int main(int argc, char **argv){
 	room_map.convertTo(room_map,CV_8UC1);
 	cv::Mat map;
 	cv::flip(room_map, map, 0);
+	
 	//make non-white pixels black
 	for (int y = 0; y < map.rows; y++)
 	{
@@ -81,8 +82,12 @@ int main(int argc, char **argv){
 	ROS_INFO("%lu%s", zf.obstacle_points_array.size(),  " obstacle points detected.");
 	zf.get_center_points(polygon_centers);
 	zf.fill_points(max_uv_distance_range, map_resolution);
-	zf.test_coverage();
-	zf.vote_out();
+	float rate = zf.test_coverage();
+	ROS_INFO("Coverage rate:  %f %", rate);
+	std::set<unsigned int, std::greater<unsigned int>> eliminated;
+	eliminated = zf.vote_out();
+	for(unsigned int x: eliminated)
+		ROS_INFO("Zone %u is eliminated.", x);
 	
 	//Save the zone centers cordinates in csv file.
 	write_csv(zf.result_zone_list,csv_file_path,map_origin,map_resolution);
@@ -96,7 +101,7 @@ int main(int argc, char **argv){
 	//zone center and the covered obstacles.
 	unsigned int seq = 0;//The move base message header sequence.
 	for(int i=1;i<=zf.zone_centers_array.size();i++){
-		if(zf.eliminated.find(i) != zf.eliminated.end())continue;
+		//if(zf.eliminated.find(i) != zf.eliminated.end())continue;
 		zf.correct_pose_cordinates(i);
 		zf.draw(i);
 		

@@ -279,15 +279,15 @@ void Zone_Filter::fill_draw_debug(unsigned int index){
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
  * Function: Output the rate of coverage of obstacle edges.			   *
  * Paramaters: 	 													   *
- * Return: No return.												   *
+ * Return: The rate of coverage in percent.							   *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-void Zone_Filter::test_coverage(){
+float Zone_Filter::test_coverage(){
 	unsigned long int not_covered = 0;
 	for(Obstacle_Point o : obstacle_points_array){
 		if(o.exposed_to.size() == 0) not_covered++;
 	}
 	
-	std::cout<<"Coverage rate: "<<100.0*(1.0-(float)((float)not_covered/obstacle_points_array.size()))<<std::endl;
+	return 100.0*(1.0-(float)((float)not_covered/obstacle_points_array.size()));
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
@@ -295,13 +295,15 @@ void Zone_Filter::test_coverage(){
  * obstacles.														   *
  * Paramaters: 	 													   *
  * 		index: Zone index to visualize.								   *
- * Return: No return.												   *
+ * Return: A set of the eliinated zones												   *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-void Zone_Filter::vote_out(){
+std::set<unsigned int, std::greater<unsigned int>> Zone_Filter::vote_out(){
 	std::set<unsigned int, std::greater<unsigned int>> voted;
 	while(1){
+		//Find zone centers that cover obstacle points exposed to only
+		//to one center
 		for(Obstacle_Point o : obstacle_points_array){
-			//count non voted obstacles
+			//count non voted zonce centers
 			unsigned int tmp;int n = 0;
 			for(unsigned int u : o.exposed_to){
 				if((voted.find(u) == voted.end()) || (!voted.empty())){
@@ -311,12 +313,9 @@ void Zone_Filter::vote_out(){
 			if(n == 1){
 				voted.insert(tmp);
 			}
-			//std::cout<<tmp.size()<<" ";
 		}
-		//std::cout<<"There are "<<zone_centers_array.size()-voted.size()<<" zones could be elliminated."<<std::endl;
-		//for(unsigned int p : voted)std::cout<<p<<" ";
-		//std::cout<<std::endl;
-		//Get minimum exposed points zone to elliminate.
+		
+		//Get minimum exposed points and not voted zone to elliminate.
 		long int min_v = INT_MAX;int min_p = -1;
 		for(int m=0; m<zone_centers_array.size();m++){
 			if((zone_centers_array[m].exposed_points.size() < min_v) && (voted.find(zone_centers_array[m].index) == voted.end())){
@@ -324,20 +323,20 @@ void Zone_Filter::vote_out(){
 				min_p = zone_centers_array[m].index;
 			}
 		}
+		//If there is no more zones to eliminae break
 		if(min_p == -1)break;
 		voted.insert(min_p);
-		//std::cout<<"Zone "<<min_p<<" elliminated."<<std::endl;
+		
 		eliminated.insert(min_p);
 	}
 	
-	std::cout<<"Eliminated zones: ";
-	for(unsigned int x : eliminated){
-		std::cout<<x<<" ";
+	for(unsigned int x : eliminated)
 		zone_centers_array.erase(zone_centers_array.begin()+x-1);
-	}
+	
 	std::cout<<std::endl;
 	for(Zone_Center c : zone_centers_array)
 		if(eliminated.find(c.index) == eliminated.end())result_zone_list.push_back(c.center);
+	return eliminated;
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
@@ -388,6 +387,7 @@ void Zone_Filter::show_non_covered(){
 	}
 	
 	cv::Mat tmp1 = tmp(roi);
+	cv::flip(tmp1, tmp1, 0);
 	cv::imshow("Non covered",  tmp1);
 	cv::waitKey(0);
 }
