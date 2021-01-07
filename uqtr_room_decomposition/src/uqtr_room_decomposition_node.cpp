@@ -118,6 +118,7 @@ int main(int argc, char **argv){
 		ac.sendGoal(goal);
 		ac.waitForResult();
 	}
+	zf.show_non_covered();
 	return 0;
 }
 
@@ -180,3 +181,4 @@ void write_csv(std::vector<cv::Point> cell_centers, std::string csv_file_path, c
 		csv<<map_resolution*p.x+map_origin.x<<","<<map_resolution*p.y+map_origin.y<<"\n";
 	csv.close();
 }
+

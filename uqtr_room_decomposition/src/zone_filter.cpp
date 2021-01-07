@@ -128,6 +128,7 @@ Obstacle_Point::Obstacle_Point(cv::Point p){
 Zone_Filter::Zone_Filter(unsigned int rr, cv::Mat room_map){
 	robot_radius = rr;
 	map = room_map.clone();
+	roi = cv::Rect(1750,1750,600,600);
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
@@ -245,7 +246,10 @@ void Zone_Filter::draw(unsigned int index){
 	for(cv::Point p : s.point_array){
 		out.at<uchar>(p.x, p.y) = 100;
 	}*/
-	cv::imshow("Zone " + std::to_string(index) ,out);
+
+	cv::Mat tmp = out(roi);
+	
+	cv::imshow("Zone " + std::to_string(index) ,tmp);
 	cv::waitKey(0);
 	cv::destroyAllWindows();
 }
@@ -356,7 +360,7 @@ void Zone_Filter::correct_pose_cordinates(unsigned int index){
 				y = y + i;
 			}
 		}
-	cv::imshow("tmp",tmp);
+	//cv::imshow("tmp",tmp);
 	if(c != 0){
 		//std::cout<<"x = "<<x/c-robot_footprint_width<<" y = "<<y/c-robot_footprint_width<<std::endl;
 		x = x/c + robot_footprint_width;
@@ -367,4 +371,23 @@ void Zone_Filter::correct_pose_cordinates(unsigned int index){
 		zone_centers_array[index-1].center.y = zone_centers_array[index-1].center.y + y;
 		//std::cout<<"x = "<<zone_centers_array[index-1].center.x<<" y = "<<zone_centers_array[index-1].center.y<<std::endl;
 	}
+}
+
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
+ * Function: Correct poses of unreacheable zone centers.               *
+ * Paramaters:                                                         *
+ * 		index: Zone index to correct.                                  *
+ * Return: No return.                                                  *
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+void Zone_Filter::show_non_covered(){
+	cv::Mat tmp = cv::Mat::ones(map.size(), CV_8U) * 255;
+	for(Obstacle_Point o : obstacle_points_array){
+		if(o.exposed_to.size() == 0){
+			tmp.at<uchar>(o.point) = 0;
+		}
+	}
+	
+	cv::Mat tmp1 = tmp(roi);
+	cv::imshow("Non covered",  tmp1);
+	cv::waitKey(0);
 }

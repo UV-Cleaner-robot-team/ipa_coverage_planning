@@ -87,7 +87,7 @@ class Obstacle_Point{
 class Zone_Filter{
 	public:
 	
-	Zone_Filter(){};
+	Zone_Filter(){roi = cv::Rect(1750,1750,600,600);};
 	Zone_Filter(unsigned int rr, cv::Mat room_map);
 	void get_edges();
 	void get_obstacle_edge_points();
@@ -98,7 +98,9 @@ class Zone_Filter{
 	void test_coverage();
 	void vote_out();
 	void correct_pose_cordinates(unsigned int index);
+	void show_non_covered();
 	
+	cv::Rect roi;
 	unsigned int robot_radius;
 	cv::Mat map;
 	cv::Mat map_edges;
