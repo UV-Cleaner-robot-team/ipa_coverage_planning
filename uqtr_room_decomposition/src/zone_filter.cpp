@@ -248,7 +248,7 @@ void Zone_Filter::draw(unsigned int index){
 	}*/
 
 	cv::Mat tmp = out(roi);
-	
+	cv::flip(tmp, tmp, 0);
 	cv::imshow("Zone " + std::to_string(index) ,tmp);
 	cv::waitKey(0);
 	cv::destroyAllWindows();

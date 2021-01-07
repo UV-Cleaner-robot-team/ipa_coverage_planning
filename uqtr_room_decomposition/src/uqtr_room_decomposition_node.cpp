@@ -96,7 +96,6 @@ int main(int argc, char **argv){
 	//zone center and the covered obstacles.
 	unsigned int seq = 0;//The move base message header sequence.
 	for(int i=1;i<=zf.zone_centers_array.size();i++){
-		std::cout<<"Goal N° "<<i<<std::endl;
 		if(zf.eliminated.find(i) != zf.eliminated.end())continue;
 		zf.correct_pose_cordinates(i);
 		zf.draw(i);
