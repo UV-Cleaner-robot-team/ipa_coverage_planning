@@ -246,7 +246,6 @@ void Zone_Filter::draw(unsigned int index){
 		out.at<uchar>(p.x, p.y) = 100;
 	}*/
 	cv::imshow("Zone " + std::to_string(index) ,out);
-	correct_pose_cordinates(index);
 	cv::waitKey(0);
 	cv::destroyAllWindows();
 }
@@ -338,17 +337,15 @@ void Zone_Filter::vote_out(){
 }
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
- * Function: Elliminate zone centers that covers already covered 	   *
- * obstacles.														   *
- * Paramaters: 	 													   *
- * 		index: Zone index to visualize.								   *
- * Return: No return.												   *
+ * Function: Correct poses of unreacheable zone centers.               *
+ * Paramaters:                                                         *
+ * 		index: Zone index to correct.                                  *
+ * Return: No return.                                                  *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 void Zone_Filter::correct_pose_cordinates(unsigned int index){
-	Zone_Center zc = zone_centers_array[index-1];
 	unsigned int robot_footprint_width = (unsigned int)((double)robot_radius * 0.6);
-	cv::Rect roi(cv::Point(zc.center.x-robot_footprint_width,zc.center.y-robot_footprint_width),
-								cv::Point(zc.center.x+robot_footprint_width,zc.center.y+robot_footprint_width));
+	cv::Rect roi(cv::Point(zone_centers_array[index-1].center.x-robot_footprint_width,zone_centers_array[index-1].center.y-robot_footprint_width),
+								cv::Point(zone_centers_array[index-1].center.x+robot_footprint_width,zone_centers_array[index-1].center.y+robot_footprint_width));
 	cv::Mat tmp = map(roi);
 	long int x=0,y=0;unsigned int c=0;
 	for(int i = 0;i<tmp.cols;i++)
@@ -359,9 +356,13 @@ void Zone_Filter::correct_pose_cordinates(unsigned int index){
 				y = y + i;
 			}
 		}
-	x = x/c - robot_footprint_width;
-	y = y/c - robot_footprint_width;
-	
-	std::cout<<"x = "<<x<<" y = "<<y<<std::endl;
 	cv::imshow("tmp",tmp);
+	std::cout<<"x = "<<x/c-robot_footprint_width<<" y = "<<y/c-robot_footprint_width<<std::endl;
+	x = x/c + robot_footprint_width;
+	y = y/c + robot_footprint_width;
+	
+	std::cout<<"x = "<<zone_centers_array[index-1].center.x<<" y = "<<zone_centers_array[index-1].center.y<<std::endl;
+	zone_centers_array[index-1].center.x = zone_centers_array[index-1].center.x + x;
+	zone_centers_array[index-1].center.y = zone_centers_array[index-1].center.y + y;
+	std::cout<<"x = "<<zone_centers_array[index-1].center.x<<" y = "<<zone_centers_array[index-1].center.y<<std::endl;
 }

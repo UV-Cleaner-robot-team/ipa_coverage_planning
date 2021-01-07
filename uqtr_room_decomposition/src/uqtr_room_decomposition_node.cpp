@@ -98,6 +98,7 @@ int main(int argc, char **argv){
 	//zone center and the covered obstacles.
 	for(int i=1;i<=zf.zone_centers_array.size();i++){
 		if(zf.eliminated.find(i) != zf.eliminated.end())continue;
+		zf.correct_pose_cordinates(i);
 		zf.draw(i);
 		goal.target_pose.header.stamp = ros::Time::now();
 		goal.target_pose.pose.position.x = (float)(zf.zone_centers_array[i-1].center.x)*map_resolution+map_origin.x;
