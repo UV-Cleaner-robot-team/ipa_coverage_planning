@@ -333,7 +333,6 @@ std::set<unsigned int, std::greater<unsigned int>> Zone_Filter::vote_out(){
 	for(unsigned int x : eliminated)
 		zone_centers_array.erase(zone_centers_array.begin()+x-1);
 	
-	std::cout<<std::endl;
 	for(Zone_Center c : zone_centers_array)
 		if(eliminated.find(c.index) == eliminated.end())result_zone_list.push_back(c.center);
 	return eliminated;

@@ -83,7 +83,7 @@ int main(int argc, char **argv){
 	zf.get_center_points(polygon_centers);
 	zf.fill_points(max_uv_distance_range, map_resolution);
 	float rate = zf.test_coverage();
-	ROS_INFO("Coverage rate:  %f %", rate);
+	ROS_INFO("Coverage rate:  %.3f %", rate);
 	std::set<unsigned int, std::greater<unsigned int>> eliminated;
 	eliminated = zf.vote_out();
 	for(unsigned int x: eliminated)
@@ -100,30 +100,78 @@ int main(int argc, char **argv){
 	//Drive the robot to zone centers and simultaneously visulize the 
 	//zone center and the covered obstacles.
 	unsigned int seq = 0;//The move base message header sequence.
+	
+	//initial position of the robot.
+	int position_x = (int)map_origin.x * (int)(-1/ map_resolution);
+	int position_y = (int)map_origin.y * (int)(-1/ map_resolution);
+	cv::Point pixel_origin(position_x, position_y);
+	
+	std::vector<float> distances;
+	std::vector<unsigned int> sorted_indecies;
+	std::vector<unsigned int> remaining_indecies;
+	
+	//Get all the zone centers respective distances to the origin.
+	for(int i=0;i<zf.zone_centers_array.size();i++){	
+		distances.push_back(euclidian_distance(zf.zone_centers_array[i].center, pixel_origin));
+		remaining_indecies.push_back(i+1);
+	}
+	
+	//Find the closest zone center to the origin & marked as the first 
+	//zone to move to.
+	unsigned int index = remaining_indecies[std::min_element(distances.begin(), distances.end()) - distances.begin()];
+	sorted_indecies.push_back(index);
+	std::vector<unsigned int>::iterator it = std::find(remaining_indecies.begin(), remaining_indecies.end(), index);
+	remaining_indecies.erase(it);
+	
+	//Find the sorted set of the center zones by the nearest
 	for(int i=1;i<=zf.zone_centers_array.size();i++){
-		//if(zf.eliminated.find(i) != zf.eliminated.end())continue;
+		distances.erase (distances.begin(), distances.end());
+		unsigned int last_sorted = sorted_indecies.back();
+		for(unsigned int x: remaining_indecies){
+			distances.push_back(euclidian_distance(zf.zone_centers_array[last_sorted-1].center, 
+							zf.zone_centers_array[x-1].center));
+		}
+		
+		index = remaining_indecies[std::min_element(distances.begin(), distances.end()) - distances.begin()];
+		sorted_indecies.push_back(index);
+		const std::vector<unsigned int>::iterator it1 = std::find(remaining_indecies.begin(), remaining_indecies.end(), index);
+		if(it1 != remaining_indecies.end())
+			remaining_indecies.erase(it1);
+	}
+	
+	//Move the robot between zones.
+	for(unsigned int i : sorted_indecies){
 		zf.correct_pose_cordinates(i);
 		zf.draw(i);
-		
+		float x = (float)(zf.zone_centers_array[i-1].center.x)*map_resolution+map_origin.x;
+		float y = (float)(zf.zone_centers_array[i-1].center.y)*map_resolution+map_origin.y;
+		move_to(ac, x, y, seq, i);
+	}
+	//Show remaining non covered obstacles.
+	zf.show_non_covered();
+	return 0;
+}
+
+float euclidian_distance(cv::Point x, cv::Point y){
+	return sqrt(pow(x.x - y.x, 2) + pow(x.y - y.y, 2));
+}
+
+void move_to(MoveBaseClient& ac, float x, float y, unsigned int& seq, unsigned int i){
 		move_base_msgs::MoveBaseGoal goal;
 		
 		goal.target_pose.header.stamp = ros::Time::now();
 		goal.target_pose.header.seq = seq++;
 		goal.target_pose.header.frame_id = "map";
-		
-		goal.target_pose.pose.position.x = (float)(zf.zone_centers_array[i-1].center.x)*map_resolution+map_origin.x;
-		goal.target_pose.pose.position.y = (float)(zf.zone_centers_array[i-1].center.y)*map_resolution+map_origin.y;
+		goal.target_pose.pose.position.x = x;
+		goal.target_pose.pose.position.y = y;
 		goal.target_pose.pose.position.z = 0;
 		goal.target_pose.pose.orientation.w = 1.0;
 		goal.target_pose.pose.orientation.z = 0;
 		goal.target_pose.pose.orientation.x = 0;
 		goal.target_pose.pose.orientation.y = 0;
-		ROS_INFO("Going to zone %u [x = %f,\ty = %f]", i, goal.target_pose.pose.position.x, goal.target_pose.pose.position.y);
+		ROS_INFO("Going to zone %d [x = %f,\ty = %f]", i, goal.target_pose.pose.position.x, goal.target_pose.pose.position.y);
 		ac.sendGoal(goal);
 		ac.waitForResult();
-	}
-	zf.show_non_covered();
-	return 0;
 }
 
 // remove unconnected, i.e. inaccessible, parts of the room (i.e. obstructed by furniture), only keep the room with the largest area
