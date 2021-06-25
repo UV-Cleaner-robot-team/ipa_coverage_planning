@@ -16,11 +16,12 @@ find_package(catkin REQUIRED  COMPONENTS
 	nav_msgs
 	roscpp
 	std_msgs
-	
+	actionlib
+	 
 	ipa_building_navigation
 	ipa_room_exploration
 )
-find_package(OpenCV REQUIRED)
+find_package(OpenCV 4.5 REQUIRED)
 find_package(Eigen3)
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -111,27 +112,28 @@ find_package(Eigen3)
 ## LIBRARIES: libraries you create in this project that dependent projects also need
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
-catkin_package(
-  INCLUDE_DIRS include
-  ${catkin_INCLUDE_DIRS}
-  DEPENDS
-    OpenCV
-  LIBRARIES
-	${PROJECT_NAME}
-  CATKIN_DEPENDS
-	${catkin_RUN_PACKAGES}
-  DEPENDS
-    roscpp
-    std_msgs
-	Boost
+#catkin_package(
+#  INCLUDE_DIRS include
+#  ${catkin_INCLUDE_DIRS}
+#  DEPENDS
+#    OpenCV
+#  LIBRARIES
+#	${PROJECT_NAME}
+#  CATKIN_DEPENDS
+#	${catkin_RUN_PACKAGES}
+#  DEPENDS
+#    roscpp
+#    std_msgs
 #  CATKIN_DEPENDS other_catkin_pkg
 #  DEPENDS system_lib
-)
+#)
 
 
 ###########
 ## Build ##
 ###########
+
+set(GLOBAL_INCLUDE  ${CATKIN_DEVEL_PREFIX}/../../include)
 
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
@@ -140,7 +142,7 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
   ${OpenCV_INCLUDE_DIRS}
   ${EIGEN3_INCLUDE_DIRS}
-  ${Boost_INCLUDE_DIRS}
+  ${GLOBAL_INCLUDE}
 )
 
 
@@ -148,8 +150,8 @@ include_directories(
 
 
 
-#add_library(${PROJECT_NAME} src/uqtr_room_decomposition_node.cpp include/decomposition_node.h)
-#target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} ${PROJECT_NAME}_node)
+add_library(zone_filter src/zone_filter.cpp)
+target_link_libraries(zone_filter ${catkin_LIBRARIES})
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
@@ -160,7 +162,7 @@ include_directories(
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(uqtr_decomposition_node src/uqtr_room_decomposition_node.cpp)
 add_dependencies(uqtr_decomposition_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(uqtr_decomposition_node ${catkin_LIBRARIES})
+target_link_libraries(uqtr_decomposition_node ${catkin_LIBRARIES} zone_filter)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the

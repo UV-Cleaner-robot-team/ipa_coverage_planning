@@ -3,10 +3,11 @@
 	<rosparam file="$(find uqtr_robot)/maps/new_world_map.yaml" command="load" />
 	<param name="map_image_path" value="$(find uqtr_robot)/maps/new_world_map.pgm"/>
 	<param name="csv_file_path" value="$(find uqtr_room_decomposition)/cfg/zone_centers.csv"/>
-	<param name="min_cell_area" value="10.0"/>
+	<param name="min_cell_area" value="2.0"/>
 	<param name="min_cell_width" value="1.0"/>
 	<param name="rotation_offset" value="0.0"/>
 	<param name="map_correction_closing_neighborhood_size" value="2"/>
-	
+	<param name="max_uv_distance_range" value="5.0"/>
+	<param name="robot_radius" value="1.8"/>
   </node>	
 </launch>

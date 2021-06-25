@@ -59,6 +59,7 @@
 
 
 #include <ipa_room_exploration/room_rotator.h>
+#define DEBUG_VISUALIZATION
 
 void RoomRotator::rotateRoom(const cv::Mat& room_map, cv::Mat& rotated_room_map, const cv::Mat& R, const cv::Rect& bounding_rect)
 {
